@@ -1,0 +1,21 @@
+{
+    "name": "ganbarodigital/php-command-runner",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        { "name": "Stuart Herbert", "email": "stuart@stuartherbert.com" }
+    ],
+    "require": {
+        "php": ">= 5.5",
+		"ganbarodigital/php-reflection": "^2.5.1",
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.6",
+        "ganbarodigital/php-unit-test-helpers": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "GanbaroDigital\\CommandRunner\\": "src"
+        }
+    }
+}
