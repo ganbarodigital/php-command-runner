@@ -2,4 +2,6 @@
 
 ## develop branch
 
-Nothing yet.
+### New
+
+* Values\CommandResult added
