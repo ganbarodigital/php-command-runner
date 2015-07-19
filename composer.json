@@ -8,6 +8,7 @@
     "require": {
         "php": ">= 5.5",
 		"ganbarodigital/php-reflection": "^2.5.1",
+        "ganbarodigital/php-data-containers": "^2.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.6",
