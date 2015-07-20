@@ -4,4 +4,5 @@
 
 ### New
 
+* Checks\DidCommandSucceed added
 * Values\CommandResult added
