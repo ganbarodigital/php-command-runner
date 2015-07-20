@@ -51,7 +51,7 @@ use PHPUnit_Framework_TestCase;
 /**
  * @coversDefaultClass GanbaroDigital\CommandRunner\Checks\DidCommandSucceed
  */
-class CommandResultTest extends PHPUnit_Framework_TestCase
+class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
