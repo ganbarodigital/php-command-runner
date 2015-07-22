@@ -45,19 +45,34 @@
 
 namespace GanbaroDigital\CommandRunner\Values;
 
+use GanbaroDigital\CommandRunner\Exceptions\E4xx_UnsupportedType;
 use GanbaroDigital\DataContainers\Containers\LazyValueObject;
+use GanbaroDigital\Reflection\Requirements\RequireNumeric;
+use GanbaroDigital\Reflection\Requirements\RequireStringy;
+use GanbaroDigital\Reflection\Requirements\RequireTraversable;
 
 /**
  * @method int getReturnCode()
  * @method void setReturnCode(int)
  * @method string getOutput()
  * @method void   setOutput(string)
+ * @method array getCommand()
+ * @method void  setCommand(array)
  */
 class CommandResult extends LazyValueObject
 {
-    public function __construct($returnCode, $output)
+    public function __construct(array $command, $returnCode, $output)
     {
+        // robustness!
+        RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
+        RequireNumeric::check($returnCode, E4xx_UnsupportedType::class);
+        RequireStringy::checkMixed($output, E4xx_UnsupportedType::class);
+
+        $this->setCommand($command);
         $this->setReturnCode($returnCode);
         $this->setOutput($output);
+
+        // all done
+        $this->makeReadOnly();
     }
 }

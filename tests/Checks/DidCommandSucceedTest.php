@@ -167,9 +167,9 @@ class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
     public function provideResultsToTest()
     {
         $retval=[];
-        $retval[] = [ new CommandResult(0, ''), true ];
+        $retval[] = [ new CommandResult([], 0, ''), true ];
         for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult($i, ''), false ];
+            $retval[] = [ new CommandResult([], $i, ''), false ];
         }
 
         return $retval;
@@ -177,17 +177,17 @@ class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
 
     public function provideResultsThatSucceed()
     {
-        return [ [ new CommandResult(0, '') ] ];
+        return [ [ new CommandResult([], 0, '') ] ];
     }
 
     public function provideResultsThatFailed()
     {
         $retval = [];
         for ($i = -255; $i <0; $i++) {
-            $retval[] = [ new CommandResult($i, '') ];
+            $retval[] = [ new CommandResult([], $i, '') ];
         }
         for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult($i, '') ];
+            $retval[] = [ new CommandResult([], $i, '') ];
         }
 
         return $retval;

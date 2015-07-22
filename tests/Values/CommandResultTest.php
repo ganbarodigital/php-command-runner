@@ -65,12 +65,55 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new CommandResult(0, '');
+        $obj = new CommandResult([], 0, '');
 
         // ----------------------------------------------------------------
         // test the results
 
         $this->assertTrue($obj instanceof CommandResult);
+    }
+
+    /**
+     * @covers ::__construct
+     */
+    public function testCanGetCommandDetails()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $expectedResult = [
+            'php',
+            '-i'
+        ];
+        $obj = new CommandResult($expectedResult, 100, '');
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj->getCommand();
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertEquals($expectedResult, $actualResult);
+    }
+
+    /**
+     * @covers ::__construct
+     * @expectedException GanbaroDigital\DataContainers\Exceptions\E4xx_NoSuchMethod
+     */
+    public function testIsReadOnly()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $expectedResult = 100;
+        $obj = new CommandResult([], $expectedResult, '');
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj->setReturnCode(101);
     }
 
     /**
@@ -82,7 +125,7 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
         // setup your test
 
         $expectedResult = 100;
-        $obj = new CommandResult($expectedResult, '');
+        $obj = new CommandResult([], $expectedResult, '');
 
         // ----------------------------------------------------------------
         // perform the change
@@ -111,7 +154,7 @@ and blank lines
 
 and anything, really
 EOF;
-        $obj = new CommandResult(0, $expectedResult);
+        $obj = new CommandResult([], 0, $expectedResult);
 
         // ----------------------------------------------------------------
         // perform the change
