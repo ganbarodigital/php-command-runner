@@ -48,9 +48,9 @@ namespace GanbaroDigital\CommandRunner\Values;
 use GanbaroDigital\DataContainers\Containers\LazyValueObject;
 
 /**
- * @method int getReturnCode
+ * @method int getReturnCode()
  * @method void setReturnCode(int)
- * @method string getOutput
+ * @method string getOutput()
  * @method void   setOutput(string)
  */
 class CommandResult extends LazyValueObject
