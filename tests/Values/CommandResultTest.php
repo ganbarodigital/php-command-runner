@@ -99,7 +99,7 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::getCommandAsString
      */
     public function testCanGetCommandDetailsAsString()
     {
