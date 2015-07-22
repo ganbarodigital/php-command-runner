@@ -8,3 +8,4 @@
 * Checks\DidCommandSucceed added
 * Clients\CommandRunner added
 * Values\CommandResult added
+* ValueBuilders\BuildEscapedCommand added
