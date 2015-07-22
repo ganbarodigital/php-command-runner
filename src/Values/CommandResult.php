@@ -46,6 +46,7 @@
 namespace GanbaroDigital\CommandRunner\Values;
 
 use GanbaroDigital\CommandRunner\Exceptions\E4xx_UnsupportedType;
+use GanbaroDigital\CommandRunner\ValueBuilders\BuildEscapedCommand;
 use GanbaroDigital\DataContainers\Containers\LazyValueObject;
 use GanbaroDigital\Reflection\Requirements\RequireNumeric;
 use GanbaroDigital\Reflection\Requirements\RequireStringy;
@@ -74,5 +75,10 @@ class CommandResult extends LazyValueObject
 
         // all done
         $this->makeReadOnly();
+    }
+
+    public function getCommandAsString()
+    {
+        return BuildEscapedCommand::fromArray($this->getCommand());
     }
 }

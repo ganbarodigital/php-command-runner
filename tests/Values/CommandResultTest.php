@@ -100,6 +100,32 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers ::__construct
+     */
+    public function testCanGetCommandDetailsAsString()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $command = [
+            'php',
+            '-i'
+        ];
+        $expectedResult = "'php' '-i'";
+        $obj = new CommandResult($command, 100, '');
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj->getCommandAsString();
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertEquals($expectedResult, $actualResult);
+    }
+
+    /**
+     * @covers ::__construct
      * @expectedException GanbaroDigital\DataContainers\Exceptions\E4xx_NoSuchMethod
      */
     public function testIsReadOnly()
