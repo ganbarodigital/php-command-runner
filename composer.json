@@ -9,6 +9,7 @@
         "php": ">= 5.5",
         "ganbarodigital/php-reflection": "^2.7",
         "ganbarodigital/php-data-containers": "^2.1",
+        "ganbarodigital/php-datetime": "^1.0",
         "ganbarodigital/php-exceptions": "^1.1"
     },
     "require-dev": {
