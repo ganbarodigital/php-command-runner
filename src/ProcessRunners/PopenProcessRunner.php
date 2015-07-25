@@ -56,7 +56,7 @@ use GanbaroDigital\Reflection\Requirements\RequireTraversable;
 /**
  * based on the CommandRunner code from Storyplayer
  */
-class PopenProcessRunner
+class PopenProcessRunner implements ProcessRunner
 {
     /**
      * run a CLI command using the popen() interface
