@@ -155,7 +155,7 @@ class PopenProcessRunner implements ProcessRunner
         $process = proc_open($cmdToExecute, self::buildPipesSpec(), $pipes);
         if (!$process) {
             // fork failed?
-            throw new E5xx_CommandFailedToStart($cmd);
+            throw new E5xx_CommandFailedToStart($command);
         }
 
         // we do not want to block whilst reading from the child process

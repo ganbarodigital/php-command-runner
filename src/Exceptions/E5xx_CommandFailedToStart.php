@@ -43,18 +43,19 @@
 
 namespace GanbaroDigital\CommandRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\CommandRunner\ValueBuilders\BuildEscapedCommand;
 
-class E4xx_CommandFailed extends E4xx_CommandRunnerException
+class E5xx_CommandFailedToStart extends E5xx_CommandRunnerException
 {
     /**
-     * exception thrown when a command failed (return code != 0)
-     * @param CommandResult $result
-     *        the result from the failed command
+     * exception thrown when we have failed to start a command
+     *
+     * @param array $command
+     *        the command that failed to start
      */
-    public function __construct(CommandResult $result)
+    public function __construct($command)
     {
-        $msg = "Command '" . $result->getCommandAsString() . ' failed with return code ' . $result->getReturnCode();
-        parent::__construct(400, $msg, ['result' => $result]);
+        $msg = "Command " . BuildEscapedCommand::from($command) . ' failed to start';
+        parent::__construct(500, $msg, ['command' => $command]);
     }
 }

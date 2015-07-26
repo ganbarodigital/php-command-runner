@@ -43,18 +43,7 @@
 
 namespace GanbaroDigital\CommandRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 
-class E4xx_CommandFailed extends E4xx_CommandRunnerException
+class E5xx_CommandRunnerException extends Exxx_CommandRunnerException
 {
-    /**
-     * exception thrown when a command failed (return code != 0)
-     * @param CommandResult $result
-     *        the result from the failed command
-     */
-    public function __construct(CommandResult $result)
-    {
-        $msg = "Command '" . $result->getCommandAsString() . ' failed with return code ' . $result->getReturnCode();
-        parent::__construct(400, $msg, ['result' => $result]);
-    }
 }
