@@ -270,12 +270,8 @@ class PopenProcessRunner implements ProcessRunner
         // keep track of how long we have been doing this
         $startTime = $endTime = microtime(true);
 
-        // at this point, our command may be running ...
-        // OR our command may have failed with an error
-        //
-        // best thing to do is to keep reading from our pipes until
-        // the pipes no longer exist or we exceed the timeout
-        while ((!feof($pipes[1]) || !feof($pipes[2])) && ($endTime - $startTime <= $timeout[0]))
+        // grab whatever output we can
+        while (self::checkPipesAreOpen($pipes) && ($endTime - $startTime <= $timeout[0]))
         {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
             $output .= self::getOutputFromPipe($pipes[1]);
@@ -285,6 +281,20 @@ class PopenProcessRunner implements ProcessRunner
 
         // all done
         return $output;
+    }
+
+    /**
+     * are the pipes connected to our child process still open?
+     *
+     * @param  array $pipes
+     *         the pipes connected to our child process
+     * @return boolean
+     *         TRUE if at least one pipe is still open
+     *         FALSE otherwise
+     */
+    private static function checkPipesAreOpen($pipes)
+    {
+        return !(feof($pipes[1]) && feof($pipes[2]));
     }
 
     /**
