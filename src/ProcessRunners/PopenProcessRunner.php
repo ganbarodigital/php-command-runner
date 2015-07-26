@@ -59,6 +59,11 @@ use GanbaroDigital\Reflection\Requirements\RequireTraversable;
 class PopenProcessRunner implements ProcessRunner
 {
     /**
+     * how long do we wait when trying to shutdown a non-responsive process?
+     */
+    const SHUTDOWN_TIMEOUT = 5.0;
+
+    /**
      * run a CLI command using the popen() interface
      *
      * @param  array|Traversable $command
@@ -183,8 +188,53 @@ class PopenProcessRunner implements ProcessRunner
         fclose($pipes[1]);
         fclose($pipes[2]);
 
+        // make sure the process has terminated
+        self::shutdownProcess($process);
+        self::terminateProcess($process);
+
         // close and get the return code
         return proc_close($process);
+    }
+
+    /**
+     * gracefully stop the child process, in the same manner that /sbin/init
+     * would be expected to
+     *
+     * @param  resource $process
+     *         the child process to shutdown
+     * @return void
+     */
+    private static function shutdownProcess($process)
+    {
+        // we do not want to wait forever
+        $startTime = $endTime = microtime(true);
+
+        // what state is the process in?
+        $status = proc_get_status($process);
+        while ($status['running'] && ($endTime - $startTime < self::SHUTDOWN_TIMEOUT)) {
+            proc_terminate($process);
+            usleep(1000);
+            $status = proc_get_status($process);
+            $endTime = microtime(true);
+        }
+    }
+
+    /**
+     * forceably stop the child process
+     *
+     * @param  resource $process
+     *         the process to stop
+     * @return void
+     */
+    private static function terminateProcess($process)
+    {
+        $status = proc_get_status($process);
+        if (!$status['running']) {
+            return;
+        }
+
+        // if we get here, it's time to be heavy-handed!
+        proc_terminate($process, 9);
     }
 
     /**
@@ -217,16 +267,20 @@ class PopenProcessRunner implements ProcessRunner
         // the output from the command will be captured here
         $output = '';
 
+        // keep track of how long we have been doing this
+        $startTime = $endTime = microtime(true);
+
         // at this point, our command may be running ...
         // OR our command may have failed with an error
         //
         // best thing to do is to keep reading from our pipes until
-        // the pipes no longer exist
-        while (!feof($pipes[1]) || !feof($pipes[2]))
+        // the pipes no longer exist or we exceed the timeout
+        while ((!feof($pipes[1]) || !feof($pipes[2])) && ($endTime - $startTime <= $timeout[0]))
         {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
             $output .= self::getOutputFromPipe($pipes[1]);
             $output .= self::getOutputFromPipe($pipes[2]);
+            $endTime = microtime(true);
         }
 
         // all done

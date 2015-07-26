@@ -96,4 +96,29 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('-rw-r--r-', substr($actualResult->getOutput(), 0, 9));
     }
 
+    /**
+     * @covers ::runCommand
+     */
+    public function testCanTimeoutCommands()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $command = [ 'sleep', '20' ];
+        $obj = new PopenProcessRunner();
+        $startTime = microtime(true);
+        $expectedResult = 0.5;
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $obj($command, $expectedResult);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $endTime = microtime(true);
+        $this->assertTrue($endTime - $startTime < $expectedResult + 1);
+    }
+
 }
