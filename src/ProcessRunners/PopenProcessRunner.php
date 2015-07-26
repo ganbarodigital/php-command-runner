@@ -271,8 +271,7 @@ class PopenProcessRunner implements ProcessRunner
         $startTime = $endTime = microtime(true);
 
         // grab whatever output we can
-        while (self::checkPipesAreOpen($pipes) && ($endTime - $startTime <= $timeout[0]))
-        {
+        while (self::checkPipesAreOpen($pipes) && ($endTime - $startTime <= $timeout[0])) {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
             $output .= self::getOutputFromPipe($pipes[1]);
             $output .= self::getOutputFromPipe($pipes[2]);
