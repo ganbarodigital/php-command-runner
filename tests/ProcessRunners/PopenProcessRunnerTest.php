@@ -93,7 +93,7 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         // test the results
 
         $this->assertEquals(0, $actualResult->getResultCode());
-        $this->assertEquals('-rw-r--r-', substr($actualResult->getOutput(), 0, 9));
+        $this->assertEquals('-rw', substr($actualResult->getOutput(), 0, 3));
     }
 
     /**
