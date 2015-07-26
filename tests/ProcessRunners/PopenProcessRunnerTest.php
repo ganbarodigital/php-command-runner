@@ -87,12 +87,13 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj(['/bin/ls', '-l']);
+        $actualResult = $obj(['/bin/ls', '-l', __FILE__]);
 
         // ----------------------------------------------------------------
         // test the results
 
-        var_dump($actualResult);
+        $this->assertEquals(0, $actualResult->getResultCode());
+        $this->assertEquals('-rw-r--r-', substr($actualResult->getOutput(), 0, 9));
     }
 
 }
