@@ -237,13 +237,13 @@ class PopenProcessRunner implements ProcessRunner
      * wait for the connected process to write something to our pipes
      * @param  array $pipes
      *         the connected pipes
-     * @param  int $ts_sec
+     * @param  int $tsSec
      *         the number of seconds to wait in select()
-     * @param  int $ts_usec
+     * @param  int $tsUsec
      *         the number of milliseconds to wait in select()
      * @return void
      */
-    private static function waitForTimeout($pipes, $ts_sec, $ts_usec)
+    private static function waitForTimeout($pipes, $tsSec, $tsUsec)
     {
         // block until there is something to read, or until the
         // timeout has happened
@@ -251,7 +251,7 @@ class PopenProcessRunner implements ProcessRunner
         // this makes sure that we do not burn CPU for the sake of it
         $readable = [ $pipes[1], $pipes[2] ];
         $writeable = $except = [];
-        stream_select($readable, $writeable, $except, $ts_sec, $ts_usec);
+        stream_select($readable, $writeable, $except, $tsSec, $tsUsec);
     }
 
     /**
