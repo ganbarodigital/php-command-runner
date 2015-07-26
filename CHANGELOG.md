@@ -4,6 +4,10 @@
 
 Nothing yet.
 
+### Fixes
+
+* ProcessRunners\PopenProcessRunner - more reliable detection of a process's return code
+
 ## 0.1.0 - Sun 25 July 2015
 
 ### New
