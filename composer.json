@@ -1,5 +1,5 @@
 {
-    "name": "ganbarodigital/php-command-runner",
+    "name": "ganbarodigital/php-process-runner",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
@@ -7,8 +7,10 @@
     ],
     "require": {
         "php": ">= 5.5",
-		"ganbarodigital/php-reflection": "^2.5.1",
-        "ganbarodigital/php-data-containers": "^2.1"
+        "ganbarodigital/php-reflection": "^2.7",
+        "ganbarodigital/php-data-containers": "^2.1",
+        "ganbarodigital/php-datetime": "^1.0",
+        "ganbarodigital/php-exceptions": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.6",
@@ -16,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "GanbaroDigital\\CommandRunner\\": "src"
+            "GanbaroDigital\\ProcessRunner\\": "src"
         }
     }
 }

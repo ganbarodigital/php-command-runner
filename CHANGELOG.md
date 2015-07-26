@@ -2,6 +2,21 @@
 
 ## develop branch
 
+Nothing yet.
+
+## 0.1.0 - Sun 25 July 2015
+
 ### New
 
-* Values\CommandResult added
+* Checks\DidProcessFail added
+* Checks\DidProcessSucceed added
+* Exceptions\E4xx_ProcessFailed added
+* Exceptions\E4xx_ProcessSucceeded added
+* Exceptions\E5xx_ProcessRunnerException added
+* Exceptions\E5xx_ProcessFailedToStart added
+* ProcessRunners\ProcessRunner added
+* ProcessRunners\PopenProcessRunner added
+* Requirements\RequireProcessFailed added
+* Requirements\RequireProcessSucceeded added
+* Values\ProcessResult added
+* ValueBuilders\BuildEscapedCommandLine added

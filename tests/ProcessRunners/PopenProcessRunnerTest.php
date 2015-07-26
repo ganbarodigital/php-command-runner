@@ -35,22 +35,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Values
+ * @package   ProcessRunner/ProcessRunners
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Values;
+namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Values\CommandResult
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\ProcessRunners\PopenProcessRunner
  */
-class CommandResultTest extends PHPUnit_Framework_TestCase
+class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
@@ -65,63 +66,59 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new CommandResult(0, '');
+        $obj = new PopenProcessRunner([]);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof CommandResult);
+        $this->assertTrue($obj instanceof PopenProcessRunner);
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::runCommand
      */
-    public function testCanGetResultCode()
+    public function testCanRunBasicCommand()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $expectedResult = 100;
-        $obj = new CommandResult($expectedResult, '');
+        $obj = new PopenProcessRunner();
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->getReturnCode();
+        $actualResult = $obj(['/bin/ls', '-l', __FILE__]);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertEquals(0, $actualResult->getResultCode());
+        $this->assertEquals('-rw', substr($actualResult->getOutput(), 0, 3));
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::runCommand
      */
-    public function testCanGetCommandOutput()
+    public function testCanTimeoutCommands()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $expectedResult = <<<EOF
-This is the fake output of running a command
-which includes new lines
-
-and blank lines
-
-and anything, really
-EOF;
-        $obj = new CommandResult(0, $expectedResult);
+        $command = [ 'sleep', '20' ];
+        $obj = new PopenProcessRunner();
+        $startTime = microtime(true);
+        $expectedResult = 0.5;
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->getOutput();
+        $obj($command, $expectedResult);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $endTime = microtime(true);
+        $this->assertTrue($endTime - $startTime < $expectedResult + 1);
     }
 
 }

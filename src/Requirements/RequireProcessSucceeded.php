@@ -35,29 +35,59 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Values
+ * @package   ProcessRunner/Requirements
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Values;
+namespace GanbaroDigital\ProcessRunner\Requirements;
 
-use GanbaroDigital\DataContainers\Containers\LazyValueObject;
+use GanbaroDigital\ProcessRunner\Checks\DidProcessSucceed;
+use GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessFailed;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 
-/**
- * @method int getReturnCode
- * @method void setReturnCode(int)
- * @method string getOutput
- * @method void   setOutput(string)
- */
-class CommandResult extends LazyValueObject
+class RequireProcessSucceeded
 {
-    public function __construct($returnCode, $output)
+    /**
+     * throws exceptions if the command failed
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessFailed
+     */
+    public static function checkProcessResult(ProcessResult $commandResult)
     {
-        $this->setReturnCode($returnCode);
-        $this->setOutput($output);
+        if (DidProcessSucceed::checkProcessResult($commandResult)) {
+            return;
+        }
+
+        throw new E4xx_ProcessFailed($commandResult);
+    }
+
+    /**
+     * throws exceptions if the command failed
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessFailed
+     */
+    public static function check(ProcessResult $commandResult)
+    {
+        return self::checkProcessResult($commandResult);
+    }
+
+    /**
+     * throws exceptions if the command failed
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessFailed
+     */
+    public function __invoke(ProcessResult $commandResult)
+    {
+        return self::checkProcessResult($commandResult);
     }
 }
