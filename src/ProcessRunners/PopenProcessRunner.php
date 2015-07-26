@@ -183,12 +183,20 @@ class PopenProcessRunner implements ProcessRunner
         fclose($pipes[1]);
         fclose($pipes[2]);
 
-        // make sure the process has terminated
-        self::shutdownProcess($process);
-        self::terminateProcess($process);
+        // proc_close() does not return a reliable return code :(
+        $status = proc_get_status($process);
+        if (isset($status['exitcode'])) {
+            $exitCode = $status['exitcode'];
+        }
+        else {
+            // make sure the process has terminated
+            self::shutdownProcess($process);
+            self::terminateProcess($process);
+            $exitCode = proc_close($process);
+        }
 
-        // close and get the return code
-        return proc_close($process);
+        // all done
+        return $exitCode;
     }
 
     /**
