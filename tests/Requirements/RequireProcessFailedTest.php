@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   ProcessRunner/ProcessRunners
+ * @package   ProcessRunner/Requirements
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
@@ -43,15 +43,15 @@
  * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\ProcessRunner\ProcessRunners;
+namespace GanbaroDigital\ProcessRunner\Requirements;
 
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @coversDefaultClass GanbaroDigital\ProcessRunner\ProcessRunners\PopenProcessRunner
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Requirements\RequireProcessFailed
  */
-class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
+class RequireProcessFailedTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
@@ -66,59 +66,114 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new PopenProcessRunner([]);
+        $obj = new RequireProcessFailed;
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof PopenProcessRunner);
+        $this->assertTrue($obj instanceof RequireProcessFailed);
     }
 
     /**
-     * @covers ::runCommand
+     * @covers ::__invoke
+     * @dataProvider provideResultThatFailed
      */
-    public function testCanRunBasicCommand()
+    public function testCanUseAsObject($data)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new PopenProcessRunner();
+        $obj = new RequireProcessFailed;
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj(['/bin/ls', '-l', __FILE__]);
+        $obj($data);
 
         // ----------------------------------------------------------------
         // test the results
-
-        $this->assertEquals(0, $actualResult->getResultCode());
-        $this->assertEquals('-rw', substr($actualResult->getOutput(), 0, 3));
+        //
+        // if we get here, then all is well
     }
 
     /**
-     * @covers ::runCommand
+     * @covers ::check
+     * @dataProvider provideResultThatFailed
      */
-    public function testCanTimeoutCommands()
+    public function testCanCallStatically($data)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $command = [ 'sleep', '20' ];
-        $obj = new PopenProcessRunner();
-        $startTime = microtime(true);
-        $expectedResult = 0.5;
+        // ----------------------------------------------------------------
+        // perform the change
+
+        RequireProcessFailed::check($data);
+
+        // ----------------------------------------------------------------
+        // test the results
+        //
+        // if we get here, then all is well
+    }
+
+    /**
+     * @covers ::check
+     * @covers ::checkProcessResult
+     * @dataProvider provideResultsThatSucceed
+     * @expectedException GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessSucceeded
+     */
+    public function testThrowsExceptionIfACommandSucceeded($data)
+    {
+        // ----------------------------------------------------------------
+        // setup your test
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj($command, $expectedResult);
+        RequireProcessFailed::check($data);
+    }
+
+    /**
+     * @covers ::check
+     * @covers ::checkProcessResult
+     * @dataProvider provideResultsThatFailed
+     */
+    public function testDoesNotThrowExceptionIfCommandFailed($data)
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        RequireProcessFailed::check($data);
 
         // ----------------------------------------------------------------
         // test the results
-
-        $endTime = microtime(true);
-        $this->assertTrue($endTime - $startTime < $expectedResult + 1);
+        //
+        // if we get here, then all is well
     }
 
+    public function provideResultsThatSucceed()
+    {
+        return [ [ new ProcessResult([], 0, '') ] ];
+    }
+
+    public function provideResultThatFailed()
+    {
+        return [ [new ProcessResult([], 1, '') ] ];
+    }
+
+    public function provideResultsThatFailed()
+    {
+        $retval = [];
+        for ($i = -255; $i <0; $i++) {
+            $retval[] = [ new ProcessResult([], $i, '') ];
+        }
+        for ($i = 1; $i <256; $i++) {
+            $retval[] = [ new ProcessResult([], $i, '') ];
+        }
+
+        return $retval;
+    }
 }

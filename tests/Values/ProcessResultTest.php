@@ -35,23 +35,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Checks
+ * @package   ProcessRunner/Values
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Checks;
+namespace GanbaroDigital\ProcessRunner\Values;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Checks\DidCommandSucceed
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Values\ProcessResult
  */
-class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
+class ProcessResultTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
@@ -66,29 +65,32 @@ class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new DidCommandSucceed;
+        $obj = new ProcessResult([], 0, '');
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof DidCommandSucceed);
+        $this->assertTrue($obj instanceof ProcessResult);
     }
 
     /**
-     * @covers ::__invoke
-     * @dataProvider provideResultsToTest
+     * @covers ::__construct
      */
-    public function testCanUseAsObject($resultObj, $expectedResult)
+    public function testCanGetCommandDetails()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new DidCommandSucceed;
+        $expectedResult = [
+            'php',
+            '-i'
+        ];
+        $obj = new ProcessResult($expectedResult, 100, '');
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj($resultObj);
+        $actualResult = $obj->getCommand();
 
         // ----------------------------------------------------------------
         // test the results
@@ -97,99 +99,98 @@ class DidCommandSucceedTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsToTest
+     * @covers ::getCommandAsString
      */
-    public function testCanCallStatically($resultObj, $expectedResult)
+    public function testCanGetCommandDetailsAsString()
     {
         // ----------------------------------------------------------------
         // setup your test
 
+        $command = [
+            'php',
+            '-i'
+        ];
+        $expectedResult = "'php' '-i'";
+        $obj = new ProcessResult($command, 100, '');
+
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult1 = DidCommandSucceed::check($resultObj);
-        $actualResult2 = DidCommandSucceed::checkCommandResult($resultObj);
+        $actualResult = $obj->getCommandAsString();
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult1);
-        $this->assertEquals($expectedResult, $actualResult2);
+        $this->assertEquals($expectedResult, $actualResult);
     }
 
     /**
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatSucceed
+     * @covers ::__construct
+     * @expectedException GanbaroDigital\DataContainers\Exceptions\E4xx_NoSuchMethod
      */
-    public function testReturnsTrueIfResultCodeIsZero($resultObj)
+    public function testIsReadOnly()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
+        $expectedResult = 100;
+        $obj = new ProcessResult([], $expectedResult, '');
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = DidCommandSucceed::check($resultObj);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($actualResult);
+        $actualResult = $obj->setReturnCode(101);
     }
 
     /**
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatFailed
+     * @covers ::__construct
      */
-    public function testReturnsFalseIfResultCodeIsNotZero($resultObj)
+    public function testCanGetResultCode()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
+        $expectedResult = 100;
+        $obj = new ProcessResult([], $expectedResult, '');
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = DidCommandSucceed::check($resultObj);
+        $actualResult = $obj->getReturnCode();
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertFalse($actualResult);
+        $this->assertEquals($expectedResult, $actualResult);
     }
 
-
-    public function provideResultsToTest()
+    /**
+     * @covers ::__construct
+     */
+    public function testCanGetCommandOutput()
     {
-        $retval=[];
-        $retval[] = [ new CommandResult([], 0, ''), true ];
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, ''), false ];
-        }
+        // ----------------------------------------------------------------
+        // setup your test
 
-        return $retval;
+        $expectedResult = <<<EOF
+This is the fake output of running a command
+which includes new lines
+
+and blank lines
+
+and anything, really
+EOF;
+        $obj = new ProcessResult([], 0, $expectedResult);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj->getOutput();
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertEquals($expectedResult, $actualResult);
     }
 
-    public function provideResultsThatSucceed()
-    {
-        return [ [ new CommandResult([], 0, '') ] ];
-    }
-
-    public function provideResultsThatFailed()
-    {
-        $retval = [];
-        for ($i = -255; $i <0; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-
-        return $retval;
-    }
 }

@@ -35,69 +35,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/ValueBuilders
+ * @package   ProcessRunner/Values
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\ValueBuilders;
+namespace GanbaroDigital\ProcessRunner\Values;
 
-use GanbaroDigital\CommandRunner\Exceptions\E4xx_UnsupportedType;
+use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
+use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
+use GanbaroDigital\DataContainers\Containers\LazyValueObject;
+use GanbaroDigital\Reflection\Requirements\RequireNumeric;
+use GanbaroDigital\Reflection\Requirements\RequireStringy;
 use GanbaroDigital\Reflection\Requirements\RequireTraversable;
-use GanbaroDigital\Reflection\ValueBuilders\FirstMethodMatchingType;
 
-class BuildEscapedCommand
+/**
+ * @method int getReturnCode()
+ * @method void setReturnCode(int)
+ * @method string getOutput()
+ * @method void   setOutput(string)
+ * @method array getCommand()
+ * @method void  setCommand(array)
+ */
+class ProcessResult extends LazyValueObject
 {
-    /**
-     * create an escaped string from a collection of command + args
-     *
-     * @param  array|Traversable $data
-     *         the data to escape
-     * @return string
-     *         the command to execute
-     */
-    public static function fromArray($data)
+    public function __construct(array $command, $returnCode, $output)
     {
         // robustness!
-        RequireTraversable::checkMixed($data);
+        RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
+        RequireNumeric::check($returnCode, E4xx_UnsupportedType::class);
+        RequireStringy::checkMixed($output, E4xx_UnsupportedType::class);
 
-        // escape everything
-        $retval=[];
-        foreach ($data as $part) {
-            $retval[] = escapeshellarg((string)$part);
-        }
+        $this->setCommand($command);
+        $this->setReturnCode($returnCode);
+        $this->setOutput($output);
 
         // all done
-        return implode(' ', $retval);
+        $this->makeReadOnly();
     }
 
-    /**
-     * create an escaped string from a collection of command + args
-     *
-     * @param  mixed $data
-     *         the data to escape
-     * @return string
-     *         the command to execute
-     */
-    public static function from($data)
+    public function getCommandAsString()
     {
-        $method = FirstMethodMatchingType::fromMixed($data, self::class, 'from', E4xx_UnsupportedType::class);
-        return self::$method($data);
-    }
-
-    /**
-     * create an escaped string from a collection of command + args
-     *
-     * @param  mixed $data
-     *         the data to escape
-     * @return string
-     *         the command to execute
-     */
-    public function __invoke($data)
-    {
-        return self::from($data);
+        return BuildEscapedCommandLine::fromArray($this->getCommand());
     }
 }

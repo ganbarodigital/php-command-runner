@@ -1,5 +1,5 @@
 {
-    "name": "ganbarodigital/php-command-runner",
+    "name": "ganbarodigital/php-process-runner",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "GanbaroDigital\\CommandRunner\\": "src"
+            "GanbaroDigital\\ProcessRunner\\": "src"
         }
     }
 }

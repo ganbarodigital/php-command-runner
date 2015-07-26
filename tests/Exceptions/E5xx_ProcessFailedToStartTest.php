@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -35,140 +34,105 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Requirements
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
- * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Requirements;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 use PHPUnit_Framework_TestCase;
+use RuntimeException;
+use stdClass;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Requirements\RequireCommandSucceeded
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart
  */
-class RequireCommandSucceededTest extends PHPUnit_Framework_TestCase
+class E4xx_ProcessFailedToStartTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @coversNothing
+     * @covers ::__construct
      */
     public function testCanInstantiate()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
+        $cmd = ['php', '-v'];
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new RequireCommandSucceeded;
+        $obj = new E5xx_ProcessFailedToStart($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof RequireCommandSucceeded);
+        $this->assertTrue($obj instanceof E5xx_ProcessFailedToStart);
     }
 
     /**
-     * @covers ::__invoke
-     * @dataProvider provideResultsThatSucceeded
+     * @covers ::__construct
      */
-    public function testCanUseAsObject($data)
+    public function testIsE5xx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new RequireCommandSucceeded;
+        $cmd = ['php', '-v'];
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj($data);
+        $obj = new E5xx_ProcessFailedToStart($cmd);
 
         // ----------------------------------------------------------------
         // test the results
-        //
-        // if we get here, then all is well
+
+        $this->assertTrue($obj instanceof E5xx_ProcessRunnerException);
     }
 
     /**
-     * @covers ::check
-     * @dataProvider provideResultsThatSucceeded
+     * @covers ::__construct
      */
-    public function testCanCallStatically($data)
+    public function testIsExxx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
+        $cmd = ['php', '-v'];
+
         // ----------------------------------------------------------------
         // perform the change
 
-        RequireCommandSucceeded::check($data);
+        $obj = new E5xx_ProcessFailedToStart($cmd);
 
         // ----------------------------------------------------------------
         // test the results
-        //
-        // if we get here, then all is well
+
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 
     /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatFailed
-     * @expectedException GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandFailed
+     * @covers ::__construct
      */
-    public function testThrowsExceptionIfACommandFailed($data)
+    public function testIsRuntimeException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        // ----------------------------------------------------------------
-        // perform the change
-
-        RequireCommandSucceeded::check($data);
-    }
-
-    /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatSucceeded
-     */
-    public function testDoesNotThrowExceptionIfCommandSucceeded($data)
-    {
-        // ----------------------------------------------------------------
-        // setup your test
+        $cmd = ['php', '-v'];
 
         // ----------------------------------------------------------------
         // perform the change
 
-        RequireCommandSucceeded::check($data);
+        $obj = new E5xx_ProcessFailedToStart($cmd);
 
         // ----------------------------------------------------------------
         // test the results
-        //
-        // if we get here, then all is well
-    }
 
-    public function provideResultsThatSucceeded()
-    {
-        return [ [ new CommandResult([], 0, '') ] ];
-    }
-
-    public function provideResultsThatFailed()
-    {
-        $retval = [];
-        for ($i = -255; $i <0; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-
-        return $retval;
+        $this->assertTrue($obj instanceof RuntimeException);
     }
 }

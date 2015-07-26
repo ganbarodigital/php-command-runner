@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -34,39 +35,59 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Requirements
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
+ * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Requirements;
 
-use PHPUnit_Framework_TestCase;
-use RuntimeException;
+use GanbaroDigital\ProcessRunner\Checks\DidProcessFail;
+use GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessSucceeded;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 
-/**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Exceptions\Exxx_CommandRunnerException
- */
-class Exxx_CommandRunnerExceptionTest extends PHPUnit_Framework_TestCase
+class RequireProcessFailed
 {
     /**
-     * @covers ::__construct
+     * throws exceptions if the command did not fail
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessSucceeded
      */
-    public function testCanInstantiate()
+    public static function checkProcessResult(ProcessResult $commandResult)
     {
-        // ----------------------------------------------------------------
-        // setup your test
+        if (DidProcessFail::checkProcessResult($commandResult)) {
+            return;
+        }
 
-        $expectedCode = 100;
-        $expectedMessage = "hello cruel world";
+        throw new E4xx_ProcessSucceeded($commandResult);
+    }
 
-        $obj = new Exxx_CommandRunnerException($expectedCode, $expectedMessage);
+    /**
+     * throws exceptions if the command did not fail
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessSucceeded
+     */
+    public static function check(ProcessResult $commandResult)
+    {
+        return self::checkProcessResult($commandResult);
+    }
 
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($obj instanceof Exxx_CommandRunnerException);
+    /**
+     * throws exceptions if the command did not fail
+     *
+     * @param  ProcessResult $commandResult
+     *         the result to check
+     * @throws E4xx_ProcessSucceeded
+     */
+    public function __invoke(ProcessResult $commandResult)
+    {
+        return self::checkProcessResult($commandResult);
     }
 }

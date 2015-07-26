@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -35,92 +34,106 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/ValueBuilders
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
- * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\ValueBuilders;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
+use RuntimeException;
+use stdClass;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\ValueBuilders\BuildEscapedCommand
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessSucceeded
  */
-class CommandResultTest extends PHPUnit_Framework_TestCase
+class E4xx_ProcessSucceededTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @coversNothing
+     * @covers ::__construct
      */
     public function testCanInstantiate()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
+        $cmd = new ProcessResult(['php', '-v'], 0, "");
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new BuildEscapedCommand;
+        $obj = new E4xx_ProcessSucceeded($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof BuildEscapedCommand);
+        $this->assertTrue($obj instanceof E4xx_ProcessSucceeded);
     }
 
     /**
-     * @covers ::__invoke
-     * @dataProvider provideCommands
+     * @covers ::__construct
      */
-    public function testCanUseAsObject($data, $expectedResult)
+    public function testIsE4xx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new BuildEscapedCommand;
+        $cmd = new ProcessResult(['php', '-v'], 0, "");
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj($data);
+        $obj = new E4xx_ProcessSucceeded($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertTrue($obj instanceof E4xx_ProcessRunnerException);
     }
 
     /**
-     * @covers ::from
-     * @covers ::fromArray
-     * @dataProvider provideCommands
+     * @covers ::__construct
      */
-    public function testCanCallStatically($data, $expectedResult)
+    public function testIsExxx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
+        $cmd = new ProcessResult(['php', '-v'], 0, "");
+
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = BuildEscapedCommand::from($data);
+        $obj = new E4xx_ProcessSucceeded($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 
-    public function provideCommands()
+    /**
+     * @covers ::__construct
+     */
+    public function testIsRuntimeException()
     {
-        return [
-            [ [ 'php', '-i'], "'php' '-i'" ],
-        ];
-    }
+        // ----------------------------------------------------------------
+        // setup your test
 
+        $cmd = new ProcessResult(['php', '-v'], 0, "");
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $obj = new E4xx_ProcessSucceeded($cmd);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertTrue($obj instanceof RuntimeException);
+    }
 }

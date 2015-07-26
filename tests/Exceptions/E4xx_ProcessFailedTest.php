@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -35,161 +34,106 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Checks
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
- * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Checks;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
+use RuntimeException;
+use stdClass;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Checks\DidCommandFail
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessFailed
  */
-class DidCommandFailTest extends PHPUnit_Framework_TestCase
+class E4xx_ProcessFailedTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @coversNothing
+     * @covers ::__construct
      */
     public function testCanInstantiate()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
+        $cmd = new ProcessResult(['php', '-v'], 1, "");
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new DidCommandFail;
+        $obj = new E4xx_ProcessFailed($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof DidCommandFail);
+        $this->assertTrue($obj instanceof E4xx_ProcessFailed);
     }
 
     /**
-     * @covers ::__invoke
-     * @dataProvider provideResultsToTest
+     * @covers ::__construct
      */
-    public function testCanUseAsObject($resultObj, $expectedResult)
+    public function testIsE4xx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new DidCommandFail;
+        $cmd = new ProcessResult(['php', '-v'], 1, "");
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj($resultObj);
+        $obj = new E4xx_ProcessFailed($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertTrue($obj instanceof E4xx_ProcessRunnerException);
     }
 
     /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsToTest
+     * @covers ::__construct
      */
-    public function testCanCallStatically($resultObj, $expectedResult)
+    public function testIsExxx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
+        $cmd = new ProcessResult(['php', '-v'], 1, "");
+
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult1 = DidCommandFail::check($resultObj);
-        $actualResult2 = DidCommandFail::checkCommandResult($resultObj);
+        $obj = new E4xx_ProcessFailed($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult1);
-        $this->assertEquals($expectedResult, $actualResult2);
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 
     /**
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatSucceed
+     * @covers ::__construct
      */
-    public function testReturnsFalseIfResultCodeIsZero($resultObj)
+    public function testIsRuntimeException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $actualResult = DidCommandFail::check($resultObj);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertFalse($actualResult);
-    }
-
-    /**
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatFailed
-     */
-    public function testReturnsTrueIfResultCodeIsNotZero($resultObj)
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-
+        $cmd = new ProcessResult(['php', '-v'], 1, "");
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = DidCommandFail::check($resultObj);
+        $obj = new E4xx_ProcessFailed($cmd);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($actualResult);
-    }
-
-
-    public function provideResultsToTest()
-    {
-        $retval=[];
-        $retval[] = [ new CommandResult([], 0, ''), false ];
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, ''), true ];
-        }
-
-        return $retval;
-    }
-
-    public function provideResultsThatSucceed()
-    {
-        return [ [ new CommandResult([], 0, '') ] ];
-    }
-
-    public function provideResultsThatFailed()
-    {
-        $retval = [];
-        for ($i = -255; $i <0; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-
-        return $retval;
+        $this->assertTrue($obj instanceof RuntimeException);
     }
 }

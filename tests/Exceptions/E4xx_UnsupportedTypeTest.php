@@ -34,21 +34,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
 use PHPUnit_Framework_TestCase;
 use RuntimeException;
 use stdClass;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Exceptions\E4xx_UnsupportedType
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType
  */
 class E4xx_UnsupportedTypeTest extends PHPUnit_Framework_TestCase
 {
@@ -76,7 +76,7 @@ class E4xx_UnsupportedTypeTest extends PHPUnit_Framework_TestCase
     /**
      * @covers ::__construct
      */
-    public function testIsE4xx_CommandRunnerException()
+    public function testIsE4xx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
@@ -91,13 +91,13 @@ class E4xx_UnsupportedTypeTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof E4xx_CommandRunnerException);
+        $this->assertTrue($obj instanceof E4xx_ProcessRunnerException);
     }
 
     /**
      * @covers ::__construct
      */
-    public function testIsExxx_CommandRunnerException()
+    public function testIsExxx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
@@ -112,7 +112,7 @@ class E4xx_UnsupportedTypeTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof Exxx_CommandRunnerException);
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 
     /**

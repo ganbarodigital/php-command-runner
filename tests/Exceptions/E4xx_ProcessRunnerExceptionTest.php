@@ -34,24 +34,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 use PHPUnit_Framework_TestCase;
 use RuntimeException;
-use stdClass;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandFailed
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\E4xx_ProcessRunnerException
  */
-class E4xx_CommandFailedTest extends PHPUnit_Framework_TestCase
+class E4xx_ProcessRunnerExceptionTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @covers ::__construct
@@ -61,79 +59,33 @@ class E4xx_CommandFailedTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // setup your test
 
-        $cmd = new CommandResult(['php', '-v'], 1, "");
+        $expectedCode = 100;
+        $expectedMessage = "hello cruel world";
 
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $obj = new E4xx_CommandFailed($cmd);
+        $obj = new E4xx_ProcessRunnerException($expectedCode, $expectedMessage);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof E4xx_CommandFailed);
+        $this->assertTrue($obj instanceof E4xx_ProcessRunnerException);
     }
 
     /**
      * @covers ::__construct
      */
-    public function testIsE4xx_CommandRunnerException()
+    public function testExtendsExxx_ProcessRunnerException()
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $cmd = new CommandResult(['php', '-v'], 1, "");
+        $expectedCode = 100;
+        $expectedMessage = "hello cruel world";
 
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $obj = new E4xx_CommandFailed($cmd);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($obj instanceof E4xx_CommandRunnerException);
-    }
-
-    /**
-     * @covers ::__construct
-     */
-    public function testIsExxx_CommandRunnerException()
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        $cmd = new CommandResult(['php', '-v'], 1, "");
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $obj = new E4xx_CommandFailed($cmd);
+        $obj = new E4xx_ProcessRunnerException($expectedCode, $expectedMessage);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof Exxx_CommandRunnerException);
-    }
-
-    /**
-     * @covers ::__construct
-     */
-    public function testIsRuntimeException()
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        $cmd = new CommandResult(['php', '-v'], 1, "");
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $obj = new E4xx_CommandFailed($cmd);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($obj instanceof RuntimeException);
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 }

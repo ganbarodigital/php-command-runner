@@ -2,7 +2,7 @@
 
 <phpunit colors="true" bootstrap="vendor/autoload.php">
   <testsuites>
-    <testsuite name="GanbaroDigital/CommandRunner">
+    <testsuite name="GanbaroDigital/ProcessRunner">
       <directory>./tests/</directory>
     </testsuite>
   </testsuites>

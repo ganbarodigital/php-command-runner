@@ -35,26 +35,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/ProcessRunners
+ * @package   ProcessRunner/ProcessRunners
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\ProcessRunners;
+namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
-use GanbaroDigital\CommandRunner\Exceptions\E4xx_UnsupportedType;
-use GanbaroDigital\CommandRunner\Exceptions\E5xx_CommandFailedToStart;
-use GanbaroDigital\CommandRunner\Values\CommandResult;
-use GanbaroDigital\CommandRunner\ValueBuilders\BuildEscapedCommand;
+use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
+use GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
+use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
 use GanbaroDigital\DateTime\Requirements\RequireTimeoutOrNull;
 use GanbaroDigital\DateTime\ValueBuilders\BuildTimeoutAsFloat;
 use GanbaroDigital\Reflection\Requirements\RequireTraversable;
 
 /**
- * based on the CommandRunner code from Storyplayer
+ * based on the ProcessRunner code from Storyplayer
  */
 class PopenProcessRunner implements ProcessRunner
 {
@@ -70,7 +70,7 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
-     * @return CommandResult
+     * @return ProcessResult
      *         the result of executing the command
      */
     public static function run($command, $timeout = null)
@@ -89,7 +89,7 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
-     * @return CommandResult
+     * @return ProcessResult
      *         the result of executing the command
      */
     private static function runCommand($command, $timeout)
@@ -111,7 +111,7 @@ class PopenProcessRunner implements ProcessRunner
         }
 
         // all done
-        return new CommandResult($command, $retval, $output);
+        return new ProcessResult($command, $retval, $output);
     }
 
     /**
@@ -146,7 +146,7 @@ class PopenProcessRunner implements ProcessRunner
     private static function startProcess($command)
     {
         // create the command to execute
-        $cmdToExecute = BuildEscapedCommand::from($command);
+        $cmdToExecute = BuildEscapedCommandLine::from($command);
 
         // how we will talk to the process
         $pipes = [];
@@ -155,7 +155,7 @@ class PopenProcessRunner implements ProcessRunner
         $process = proc_open($cmdToExecute, self::buildPipesSpec(), $pipes);
         if (!$process) {
             // fork failed?
-            throw new E5xx_CommandFailedToStart($command);
+            throw new E5xx_ProcessFailedToStart($command);
         }
 
         // we do not want to block whilst reading from the child process
@@ -336,7 +336,7 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
-     * @return CommandResult
+     * @return ProcessResult
      *         the result of executing the command
      */
     public function __invoke($command, $timeout = null)

@@ -34,58 +34,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use PHPUnit_Framework_TestCase;
-use RuntimeException;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 
-/**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandRunnerException
- */
-class E4xx_CommandRunnerExceptionTest extends PHPUnit_Framework_TestCase
+class E4xx_ProcessFailed extends E4xx_ProcessRunnerException
 {
     /**
-     * @covers ::__construct
+     * exception thrown when a command failed (return code != 0)
+     * @param ProcessResult $result
+     *        the result from the failed command
      */
-    public function testCanInstantiate()
+    public function __construct(ProcessResult $result)
     {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        $expectedCode = 100;
-        $expectedMessage = "hello cruel world";
-
-        $obj = new E4xx_CommandRunnerException($expectedCode, $expectedMessage);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($obj instanceof E4xx_CommandRunnerException);
-    }
-
-    /**
-     * @covers ::__construct
-     */
-    public function testExtendsExxx_CommandRunnerException()
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        $expectedCode = 100;
-        $expectedMessage = "hello cruel world";
-
-        $obj = new E4xx_CommandRunnerException($expectedCode, $expectedMessage);
-
-        // ----------------------------------------------------------------
-        // test the results
-
-        $this->assertTrue($obj instanceof Exxx_CommandRunnerException);
+        $msg = "Command '" . $result->getCommandAsString() . ' failed with return code ' . $result->getReturnCode();
+        parent::__construct(400, $msg, ['result' => $result]);
     }
 }

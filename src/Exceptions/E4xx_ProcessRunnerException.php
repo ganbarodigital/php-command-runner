@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -35,59 +34,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Requirements
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
- * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Requirements;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Checks\DidCommandSucceed;
-use GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandFailed;
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 
-class RequireCommandSucceeded
+class E4xx_ProcessRunnerException extends Exxx_ProcessRunnerException
 {
-    /**
-     * throws exceptions if the command failed
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandFailed
-     */
-    public static function checkCommandResult(CommandResult $commandResult)
-    {
-        if (DidCommandSucceed::checkCommandResult($commandResult)) {
-            return;
-        }
-
-        throw new E4xx_CommandFailed($commandResult);
-    }
-
-    /**
-     * throws exceptions if the command failed
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandFailed
-     */
-    public static function check(CommandResult $commandResult)
-    {
-        return self::checkCommandResult($commandResult);
-    }
-
-    /**
-     * throws exceptions if the command failed
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandFailed
-     */
-    public function __invoke(CommandResult $commandResult)
-    {
-        return self::checkCommandResult($commandResult);
-    }
 }

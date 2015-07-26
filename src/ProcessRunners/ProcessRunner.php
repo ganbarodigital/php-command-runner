@@ -35,14 +35,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/ProcessRunners
+ * @package   ProcessRunner/ProcessRunners
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\ProcessRunners;
+namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
 interface ProcessRunner
 {
@@ -53,7 +53,7 @@ interface ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
-     * @return CommandResult
+     * @return ProcessResult
      *         the result of executing the command
      */
     public function __invoke($command, $timeout = null);

@@ -34,27 +34,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
 
-class E4xx_CommandFailed extends E4xx_CommandRunnerException
+class E5xx_ProcessFailedToStart extends E5xx_ProcessRunnerException
 {
     /**
-     * exception thrown when a command failed (return code != 0)
-     * @param CommandResult $result
-     *        the result from the failed command
+     * exception thrown when we have failed to start a command
+     *
+     * @param array $command
+     *        the command that failed to start
      */
-    public function __construct(CommandResult $result)
+    public function __construct($command)
     {
-        $msg = "Command '" . $result->getCommandAsString() . ' failed with return code ' . $result->getReturnCode();
-        parent::__construct(400, $msg, ['result' => $result]);
+        $msg = "Command " . BuildEscapedCommandLine::from($command) . ' failed to start';
+        parent::__construct(500, $msg, ['command' => $command]);
     }
 }

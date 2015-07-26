@@ -34,28 +34,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Exceptions
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Exceptions;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\ValueBuilders\BuildEscapedCommand;
+use PHPUnit_Framework_TestCase;
+use RuntimeException;
 
-class E5xx_CommandFailedToStart extends E5xx_CommandRunnerException
+/**
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Exceptions\Exxx_ProcessRunnerException
+ */
+class Exxx_ProcessRunnerExceptionTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * exception thrown when we have failed to start a command
-     *
-     * @param array $command
-     *        the command that failed to start
+     * @covers ::__construct
      */
-    public function __construct($command)
+    public function testCanInstantiate()
     {
-        $msg = "Command " . BuildEscapedCommand::from($command) . ' failed to start';
-        parent::__construct(500, $msg, ['command' => $command]);
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $expectedCode = 100;
+        $expectedMessage = "hello cruel world";
+
+        $obj = new Exxx_ProcessRunnerException($expectedCode, $expectedMessage);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertTrue($obj instanceof Exxx_ProcessRunnerException);
     }
 }

@@ -35,19 +35,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Values
+ * @package   ProcessRunner/Values
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Checks;
+namespace GanbaroDigital\ProcessRunner\Checks;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 
-class DidCommandFail
+class DidProcessFail
 {
     /**
      * did the command fail, according to its return code?
@@ -55,13 +55,13 @@ class DidCommandFail
      * this isn't 100% reliable, as there are plenty of CLI commands out
      * there which no longer respect the UNIX convention on return codes
      *
-     * @param  CommandResult $commandResult
+     * @param  ProcessResult $commandResult
      *         the result to check
      * @return boolean
      *         TRUE if the command failed
      *         FALSE otherwise
      */
-    public static function checkCommandResult(CommandResult $commandResult)
+    public static function checkProcessResult(ProcessResult $commandResult)
     {
         if ($commandResult->getReturnCode() !== 0) {
             return true;
@@ -76,15 +76,15 @@ class DidCommandFail
      * this isn't 100% reliable, as there are plenty of CLI commands out
      * there which no longer respect the UNIX convention on return codes
      *
-     * @param  CommandResult $commandResult
+     * @param  ProcessResult $commandResult
      *         the result to check
      * @return boolean
      *         TRUE if the command failed
      *         FALSE otherwise
      */
-    public static function check(CommandResult $commandResult)
+    public static function check(ProcessResult $commandResult)
     {
-        return self::checkCommandResult($commandResult);
+        return self::checkProcessResult($commandResult);
     }
 
     /**
@@ -93,14 +93,14 @@ class DidCommandFail
      * this isn't 100% reliable, as there are plenty of CLI commands out
      * there which no longer respect the UNIX convention on return codes
      *
-     * @param  CommandResult $commandResult
+     * @param  ProcessResult $commandResult
      *         the result to check
      * @return boolean
      *         TRUE if the command failed
      *         FALSE otherwise
      */
-    public function __invoke(CommandResult $commandResult)
+    public function __invoke(ProcessResult $commandResult)
     {
-        return self::checkCommandResult($commandResult);
+        return self::checkProcessResult($commandResult);
     }
 }

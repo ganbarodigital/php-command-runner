@@ -35,23 +35,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Requirements
+ * @package   ProcessRunner/ValueBuilders
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Requirements;
+namespace GanbaroDigital\ProcessRunner\ValueBuilders;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Requirements\RequireCommandFailed
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine
  */
-class RequireCommandFailedTest extends PHPUnit_Framework_TestCase
+class ProcessResultTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
@@ -66,41 +65,42 @@ class RequireCommandFailedTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new RequireCommandFailed;
+        $obj = new BuildEscapedCommandLine;
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof RequireCommandFailed);
+        $this->assertTrue($obj instanceof BuildEscapedCommandLine);
     }
 
     /**
      * @covers ::__invoke
-     * @dataProvider provideResultThatFailed
+     * @dataProvider provideCommands
      */
-    public function testCanUseAsObject($data)
+    public function testCanUseAsObject($data, $expectedResult)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $obj = new RequireCommandFailed;
+        $obj = new BuildEscapedCommandLine;
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj($data);
+        $actualResult = $obj($data);
 
         // ----------------------------------------------------------------
         // test the results
-        //
-        // if we get here, then all is well
+
+        $this->assertEquals($expectedResult, $actualResult);
     }
 
     /**
-     * @covers ::check
-     * @dataProvider provideResultThatFailed
+     * @covers ::from
+     * @covers ::fromArray
+     * @dataProvider provideCommands
      */
-    public function testCanCallStatically($data)
+    public function testCanCallStatically($data, $expectedResult)
     {
         // ----------------------------------------------------------------
         // setup your test
@@ -108,72 +108,19 @@ class RequireCommandFailedTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        RequireCommandFailed::check($data);
+        $actualResult = BuildEscapedCommandLine::from($data);
 
         // ----------------------------------------------------------------
         // test the results
-        //
-        // if we get here, then all is well
+
+        $this->assertEquals($expectedResult, $actualResult);
     }
 
-    /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatSucceed
-     * @expectedException GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandSucceeded
-     */
-    public function testThrowsExceptionIfACommandSucceeded($data)
+    public function provideCommands()
     {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        RequireCommandFailed::check($data);
+        return [
+            [ [ 'php', '-i'], "'php' '-i'" ],
+        ];
     }
 
-    /**
-     * @covers ::check
-     * @covers ::checkCommandResult
-     * @dataProvider provideResultsThatFailed
-     */
-    public function testDoesNotThrowExceptionIfCommandFailed($data)
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        RequireCommandFailed::check($data);
-
-        // ----------------------------------------------------------------
-        // test the results
-        //
-        // if we get here, then all is well
-    }
-
-    public function provideResultsThatSucceed()
-    {
-        return [ [ new CommandResult([], 0, '') ] ];
-    }
-
-    public function provideResultThatFailed()
-    {
-        return [ [new CommandResult([], 1, '') ] ];
-    }
-
-    public function provideResultsThatFailed()
-    {
-        $retval = [];
-        for ($i = -255; $i <0; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-        for ($i = 1; $i <256; $i++) {
-            $retval[] = [ new CommandResult([], $i, '') ];
-        }
-
-        return $retval;
-    }
 }

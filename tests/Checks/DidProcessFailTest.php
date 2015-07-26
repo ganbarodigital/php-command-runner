@@ -35,22 +35,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Values
+ * @package   ProcessRunner/Checks
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Values;
+namespace GanbaroDigital\ProcessRunner\Checks;
 
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @coversDefaultClass GanbaroDigital\CommandRunner\Values\CommandResult
+ * @coversDefaultClass GanbaroDigital\ProcessRunner\Checks\DidProcessFail
  */
-class CommandResultTest extends PHPUnit_Framework_TestCase
+class DidProcessFailTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
@@ -65,32 +66,29 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
         // ----------------------------------------------------------------
         // perform the change
 
-        $obj = new CommandResult([], 0, '');
+        $obj = new DidProcessFail;
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertTrue($obj instanceof CommandResult);
+        $this->assertTrue($obj instanceof DidProcessFail);
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::__invoke
+     * @dataProvider provideResultsToTest
      */
-    public function testCanGetCommandDetails()
+    public function testCanUseAsObject($resultObj, $expectedResult)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $expectedResult = [
-            'php',
-            '-i'
-        ];
-        $obj = new CommandResult($expectedResult, 100, '');
+        $obj = new DidProcessFail;
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->getCommand();
+        $actualResult = $obj($resultObj);
 
         // ----------------------------------------------------------------
         // test the results
@@ -99,98 +97,99 @@ class CommandResultTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::getCommandAsString
+     * @covers ::check
+     * @covers ::checkProcessResult
+     * @dataProvider provideResultsToTest
      */
-    public function testCanGetCommandDetailsAsString()
+    public function testCanCallStatically($resultObj, $expectedResult)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $command = [
-            'php',
-            '-i'
-        ];
-        $expectedResult = "'php' '-i'";
-        $obj = new CommandResult($command, 100, '');
-
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->getCommandAsString();
+        $actualResult1 = DidProcessFail::check($resultObj);
+        $actualResult2 = DidProcessFail::checkProcessResult($resultObj);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertEquals($expectedResult, $actualResult1);
+        $this->assertEquals($expectedResult, $actualResult2);
     }
 
     /**
-     * @covers ::__construct
-     * @expectedException GanbaroDigital\DataContainers\Exceptions\E4xx_NoSuchMethod
+     * @covers ::checkProcessResult
+     * @dataProvider provideResultsThatSucceed
      */
-    public function testIsReadOnly()
+    public function testReturnsFalseIfResultCodeIsZero($resultObj)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $expectedResult = 100;
-        $obj = new CommandResult([], $expectedResult, '');
+
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->setReturnCode(101);
-    }
-
-    /**
-     * @covers ::__construct
-     */
-    public function testCanGetResultCode()
-    {
-        // ----------------------------------------------------------------
-        // setup your test
-
-        $expectedResult = 100;
-        $obj = new CommandResult([], $expectedResult, '');
-
-        // ----------------------------------------------------------------
-        // perform the change
-
-        $actualResult = $obj->getReturnCode();
+        $actualResult = DidProcessFail::check($resultObj);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertFalse($actualResult);
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::checkProcessResult
+     * @dataProvider provideResultsThatFailed
      */
-    public function testCanGetCommandOutput()
+    public function testReturnsTrueIfResultCodeIsNotZero($resultObj)
     {
         // ----------------------------------------------------------------
         // setup your test
 
-        $expectedResult = <<<EOF
-This is the fake output of running a command
-which includes new lines
 
-and blank lines
-
-and anything, really
-EOF;
-        $obj = new CommandResult([], 0, $expectedResult);
 
         // ----------------------------------------------------------------
         // perform the change
 
-        $actualResult = $obj->getOutput();
+        $actualResult = DidProcessFail::check($resultObj);
 
         // ----------------------------------------------------------------
         // test the results
 
-        $this->assertEquals($expectedResult, $actualResult);
+        $this->assertTrue($actualResult);
     }
 
+
+    public function provideResultsToTest()
+    {
+        $retval=[];
+        $retval[] = [ new ProcessResult([], 0, ''), false ];
+        for ($i = 1; $i <256; $i++) {
+            $retval[] = [ new ProcessResult([], $i, ''), true ];
+        }
+
+        return $retval;
+    }
+
+    public function provideResultsThatSucceed()
+    {
+        return [ [ new ProcessResult([], 0, '') ] ];
+    }
+
+    public function provideResultsThatFailed()
+    {
+        $retval = [];
+        for ($i = -255; $i <0; $i++) {
+            $retval[] = [ new ProcessResult([], $i, '') ];
+        }
+        for ($i = 1; $i <256; $i++) {
+            $retval[] = [ new ProcessResult([], $i, '') ];
+        }
+
+        return $retval;
+    }
 }

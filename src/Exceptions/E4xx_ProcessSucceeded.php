@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Copyright (c) 2011-present MediaSift Ltd
  * Copyright (c) 2015-present Ganbaro Digital Ltd
  * All rights reserved.
  *
@@ -35,59 +34,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Requirements
+ * @package   ProcessRunner/Exceptions
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
- * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Requirements;
+namespace GanbaroDigital\ProcessRunner\Exceptions;
 
-use GanbaroDigital\CommandRunner\Checks\DidCommandFail;
-use GanbaroDigital\CommandRunner\Exceptions\E4xx_CommandSucceeded;
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 
-class RequireCommandFailed
+class E4xx_ProcessSucceeded extends E4xx_ProcessRunnerException
 {
-    /**
-     * throws exceptions if the command did not fail
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandSucceeded
-     */
-    public static function checkCommandResult(CommandResult $commandResult)
+    public function __construct(ProcessResult $result)
     {
-        if (DidCommandFail::checkCommandResult($commandResult)) {
-            return;
-        }
+        $msg = "Command '" . $result->getCommandAsString() . ' succeeded with return code ' . $result->getReturnCode();
 
-        throw new E4xx_CommandSucceeded($commandResult);
-    }
-
-    /**
-     * throws exceptions if the command did not fail
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandSucceeded
-     */
-    public static function check(CommandResult $commandResult)
-    {
-        return self::checkCommandResult($commandResult);
-    }
-
-    /**
-     * throws exceptions if the command did not fail
-     *
-     * @param  CommandResult $commandResult
-     *         the result to check
-     * @throws E4xx_CommandSucceeded
-     */
-    public function __invoke(CommandResult $commandResult)
-    {
-        return self::checkCommandResult($commandResult);
+        parent::__construct(400, $msg, ['result' => $result]);
     }
 }

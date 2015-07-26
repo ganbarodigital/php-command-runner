@@ -35,27 +35,69 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   CommandRunner/Clients
+ * @package   ProcessRunner/ValueBuilders
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
- * @link      http://code.ganbarodigital.com/php-command-runner
+ * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\CommandRunner\Clients;
+namespace GanbaroDigital\ProcessRunner\ValueBuilders;
 
-use GanbaroDigital\CommandRunner\Values\CommandResult;
+use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
+use GanbaroDigital\Reflection\Requirements\RequireTraversable;
+use GanbaroDigital\Reflection\ValueBuilders\FirstMethodMatchingType;
 
-interface CommandRunner
+class BuildEscapedCommandLine
 {
     /**
-     * execute a shell command, and return the results
+     * create an escaped string from a collection of command + args
      *
-     * @param  array  $command
+     * @param  array|Traversable $data
+     *         the data to escape
+     * @return string
      *         the command to execute
-     * @return CommandResult
-     *         the result of running the command
      */
-    public function runCommand(array $command);
+    public static function fromArray($data)
+    {
+        // robustness!
+        RequireTraversable::checkMixed($data);
+
+        // escape everything
+        $retval=[];
+        foreach ($data as $part) {
+            $retval[] = escapeshellarg((string)$part);
+        }
+
+        // all done
+        return implode(' ', $retval);
+    }
+
+    /**
+     * create an escaped string from a collection of command + args
+     *
+     * @param  mixed $data
+     *         the data to escape
+     * @return string
+     *         the command to execute
+     */
+    public static function from($data)
+    {
+        $method = FirstMethodMatchingType::fromMixed($data, self::class, 'from', E4xx_UnsupportedType::class);
+        return self::$method($data);
+    }
+
+    /**
+     * create an escaped string from a collection of command + args
+     *
+     * @param  mixed $data
+     *         the data to escape
+     * @return string
+     *         the command to execute
+     */
+    public function __invoke($data)
+    {
+        return self::from($data);
+    }
 }
