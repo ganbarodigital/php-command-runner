@@ -207,10 +207,12 @@ class PopenProcessRunner implements ProcessRunner
      *
      * @param  array &$pipes
      *         the pipes that are connected to the process
+     * @param  array $timeout
+     *         the timeout to use whilst draining the pipes
      * @return string
      *         the combined output from stdout and stderr
      */
-    private static function drainPipes(&$pipes)
+    private static function drainPipes(&$pipes, $timeout)
     {
         // the output from the command will be captured here
         $output = '';
@@ -222,25 +224,51 @@ class PopenProcessRunner implements ProcessRunner
         // the pipes no longer exist
         while (!feof($pipes[1]) || !feof($pipes[2]))
         {
-            // block until there is something to read, or until the
-            // timeout has happened
-            //
-            // this makes sure that we do not burn CPU for the sake of it
-            $readable = [ $pipes[1], $pipes[2] ];
-            $writeable = $except = [];
-            stream_select($readable, $writeable, $except, 1);
-
-            // check all the streams for output
-            if ($line = fgets($pipes[1])) {
-                $output = $output . $line;
-            }
-            if ($line = fgets($pipes[2])) {
-                $output = $output . $line;
-            }
+            self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
+            $output .= self::getOutputFromPipe($pipes[1]);
+            $output .= self::getOutputFromPipe($pipes[2]);
         }
 
         // all done
         return $output;
+    }
+
+    /**
+     * wait for the connected process to write something to our pipes
+     * @param  array $pipes
+     *         the connected pipes
+     * @param  int $ts_sec
+     *         the number of seconds to wait in select()
+     * @param  int $ts_usec
+     *         the number of milliseconds to wait in select()
+     * @return void
+     */
+    private static function waitForTimeout($pipes, $ts_sec, $ts_usec)
+    {
+        // block until there is something to read, or until the
+        // timeout has happened
+        //
+        // this makes sure that we do not burn CPU for the sake of it
+        $readable = [ $pipes[1], $pipes[2] ];
+        $writeable = $except = [];
+        stream_select($readable, $writeable, $except, $ts_sec, $ts_usec);
+    }
+
+    /**
+     * get any output that's waiting on a pipe
+     *
+     * @param  resource $pipe
+     *         the pipe to check and read from
+     * @return string
+     *         the returned output, or an empty string otherwise
+     */
+    private static function getOutputFromPipe($pipe)
+    {
+        if ($line = fgets($pipe)) {
+            return $line;
+        }
+
+        return '';
     }
 
     /**
