@@ -4,6 +4,12 @@
 
 Nothing yet.
 
+## 0.2.0 - Tue 1 Sep 2015
+
+### New
+
+* ProcessRunners\PopenProcessRunner - can now be told which folder to run the child process in
+
 ## 0.1.1 - Sun 25 Jul 2015
 
 ### Fixes
