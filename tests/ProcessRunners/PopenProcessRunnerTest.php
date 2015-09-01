@@ -121,4 +121,65 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($endTime - $startTime < $expectedResult + 1);
     }
 
+    /**
+     * @covers ::runCommand
+     */
+    public function testCanChangeFolderWhenRunningCommand()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        // we cannot trust this value alone
+        //
+        // on OSX, the 'pwd' command returns a different value
+        $tmpdir = sys_get_temp_dir();
+        $origDir = getcwd();
+        chdir($tmpdir);
+        $tmpdir = getcwd();
+        chdir($origDir);
+
+        $command = [ 'pwd' ];
+        $obj = new PopenProcessRunner();
+
+        $expectedResult = $tmpdir;
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $cmdResult = $obj($command, null, $tmpdir);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $actualResult = rtrim($cmdResult->getOutput());
+        $this->assertEquals($expectedResult, $actualResult);
+    }
+
+    /**
+     * @covers ::runCommand
+     */
+    public function testChangingFolderOnlyAffectsRunningCommand()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $tmpdir = sys_get_temp_dir();
+        $origDir = getcwd();
+
+        $command = [ 'pwd' ];
+        $obj = new PopenProcessRunner();
+
+        $expectedResult = $origDir;
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $obj($command, null, $tmpdir);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $actualResult = getcwd();
+        $this->assertEquals($expectedResult, $actualResult);
+    }
 }

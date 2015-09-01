@@ -45,6 +45,7 @@
 
 namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
+use GanbaroDigital\Filesystem\Requirements\RequireAbsoluteFolderOrNull;
 use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
 use GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
@@ -70,16 +71,19 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
+     * @param  string|null $cwd
+     *         the folder to run the command inside
      * @return ProcessResult
      *         the result of executing the command
      */
-    public static function run($command, $timeout = null)
+    public static function run($command, $timeout = null, $cwd = null)
     {
         // robustness
         RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
         RequireTimeoutOrNull::check($timeout);
+        RequireAbsoluteFolderOrNull::check($cwd);
 
-        return self::runCommand($command, $timeout);
+        return self::runCommand($command, $timeout, $cwd);
     }
 
     /**
@@ -89,16 +93,18 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
+     * @param  string|null $cwd
+     *         the folder to run the command inside
      * @return ProcessResult
      *         the result of executing the command
      */
-    private static function runCommand($command, $timeout)
+    private static function runCommand($command, $timeout, $cwd)
     {
         // when the command needs to stop
         $timeoutToUse = self::getTimeoutToUse($timeout);
 
         // start the process
-        list($process, $pipes) = self::startProcess($command);
+        list($process, $pipes) = self::startProcess($command, $cwd);
 
         // drain the pipes
         try {
@@ -139,11 +145,13 @@ class PopenProcessRunner implements ProcessRunner
      *
      * @param  array|Traversable $command
      *         the command to execute
+     * @param  string|null $cwd
+     *         the folder to run the command inside
      * @return array
      *         0 - the process handle
      *         1 - the array of pipes to interact with the process
      */
-    private static function startProcess($command)
+    private static function startProcess($command, $cwd = null)
     {
         // create the command to execute
         $cmdToExecute = BuildEscapedCommandLine::from($command);
@@ -152,7 +160,7 @@ class PopenProcessRunner implements ProcessRunner
         $pipes = [];
 
         // start the process
-        $process = proc_open($cmdToExecute, self::buildPipesSpec(), $pipes);
+        $process = proc_open($cmdToExecute, self::buildPipesSpec(), $pipes, $cwd);
         if (!$process) {
             // fork failed?
             throw new E5xx_ProcessFailedToStart($command);
@@ -344,11 +352,13 @@ class PopenProcessRunner implements ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
+     * @param  string|null $cwd
+     *         the folder to run the command inside
      * @return ProcessResult
      *         the result of executing the command
      */
-    public function __invoke($command, $timeout = null)
+    public function __invoke($command, $timeout = null, $cwd = null)
     {
-        return self::runCommand($command, $timeout);
+        return self::runCommand($command, $timeout, $cwd);
     }
 }

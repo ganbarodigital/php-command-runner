@@ -53,8 +53,10 @@ interface ProcessRunner
      *         the command to execute
      * @param  int|null $timeout
      *         how long before we force the command to close?
+     * @param  string|null $cwd
+     *         the folder to run the command inside
      * @return ProcessResult
      *         the result of executing the command
      */
-    public function __invoke($command, $timeout = null);
+    public function __invoke($command, $timeout = null, $cwd = null);
 }
