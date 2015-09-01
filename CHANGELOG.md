@@ -2,6 +2,10 @@
 
 ## develop branch
 
+Nothing yet.
+
+## 0.2.0 - Tue 1 Sep 2015
+
 ### New
 
 * ProcessRunners\PopenProcessRunner - can now be told which folder to run the child process in
