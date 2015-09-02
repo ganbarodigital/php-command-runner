@@ -4,6 +4,12 @@
 
 Nothing yet.
 
+## 0.2.1 - Wed 2 Sep 2015
+
+### Fixes
+
+* Depend on a tagged release of php-file-system
+
 ## 0.2.0 - Tue 1 Sep 2015
 
 ### New
