@@ -50,7 +50,7 @@ use PHPUnit_Framework_TestCase;
 /**
  * @coversDefaultClass GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine
  */
-class ProcessResultTest extends PHPUnit_Framework_TestCase
+class BuildEscapedCommandLineTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @coversNothing
