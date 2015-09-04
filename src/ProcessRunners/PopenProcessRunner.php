@@ -279,10 +279,9 @@ class PopenProcessRunner implements ProcessRunner
 
         // keep track of how long we have been doing this
         $startTime = $endTime = microtime(true);
-        $timedOut = false;
 
         // grab whatever output we can
-        while (self::checkPipesAreOpen($pipes) && ($endTime - $startTime <= $timeout[0])) {
+        while (self::checkPipesAreOpen($pipes) && !self::hasTimedout($startTime, $endTime, $timeout[0])) {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
             $output .= self::getOutputFromPipe($pipes[1]);
             $output .= self::getOutputFromPipe($pipes[2]);
@@ -290,12 +289,28 @@ class PopenProcessRunner implements ProcessRunner
         }
 
         // did we timeout?
-        if ($endTime - $startTime > $timeout[0]) {
-            $timedOut = true;
-        }
+        $timedOut =self::hasTimedout($startTime, $endTime, $timeout[0]);
 
         // all done
         return [ $output , $timedOut ];
+    }
+
+    /**
+     * has a timeout occurred?
+     *
+     * @param  float  $startTime
+     *         when did the process start?
+     * @param  float  $endTime
+     *         when did the process end?
+     * @param  float  $timeout
+     *         how long is the process allowed to run for?
+     * @return boolean
+     *         TRUE if a timeout occurred
+     *         FALSE otherwise
+     */
+    private static function hasTimedOut($startTime, $endTime, $timeout)
+    {
+        return ($endTime - $startTime > $timeout);
     }
 
     /**
