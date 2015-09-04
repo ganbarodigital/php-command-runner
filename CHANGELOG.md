@@ -4,6 +4,12 @@
 
 Nothing yet.
 
+## 0.2.2 - Fri 4 Sep 2015
+
+### Fixes
+
+* PopenProcessRunner - only force-terminate a process if it times out
+
 ## 0.2.1 - Wed 2 Sep 2015
 
 ### Fixes
