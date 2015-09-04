@@ -75,6 +75,7 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::run
      * @covers ::runCommand
      */
     public function testCanRunBasicCommand()
@@ -97,6 +98,7 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::run
      * @covers ::runCommand
      */
     public function testCanTimeoutCommands()
@@ -122,6 +124,7 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::run
      * @covers ::runCommand
      */
     public function testCanChangeFolderWhenRunningCommand()
@@ -156,6 +159,7 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::run
      * @covers ::runCommand
      */
     public function testChangingFolderOnlyAffectsRunningCommand()

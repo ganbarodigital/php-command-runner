@@ -102,18 +102,19 @@ class PopenProcessRunner implements ProcessRunner
     {
         // when the command needs to stop
         $timeoutToUse = self::getTimeoutToUse($timeout);
+        $timedOut = true;
 
         // start the process
         list($process, $pipes) = self::startProcess($command, $cwd);
 
         // drain the pipes
         try {
-            $output = self::drainPipes($pipes, $timeoutToUse);
+            list($output, $timedOut) = self::drainPipes($pipes, $timeoutToUse);
         }
         finally {
             // at this point, our pipes have been closed
             // we can assume that the child process has finished
-            $retval = self::stopProcess($process, $pipes);
+            $retval = self::stopProcess($process, $pipes, $timedOut);
         }
 
         // all done
@@ -181,27 +182,24 @@ class PopenProcessRunner implements ProcessRunner
      *         the process handle
      * @param  array &$pipes
      *         the pipes that are open to the process
+     * @param  boolean $timedOut
+     *         did the process fail to exit in the time allotted?
      * @return int
      *         the return code from the command
      */
-    private static function stopProcess($process, &$pipes)
+    private static function stopProcess($process, &$pipes, $timedOut)
     {
         // pipes must be closed first to avoid
         // a deadlock, according to the PHP Manual
         fclose($pipes[1]);
         fclose($pipes[2]);
 
-        // proc_close() does not return a reliable return code :(
-        $status = proc_get_status($process);
-        if (isset($status['exitcode'])) {
-            $exitCode = $status['exitcode'];
-        }
-        else {
-            // make sure the process has terminated
+        // make sure the process has terminated
+        if ($timedOut) {
             self::shutdownProcess($process);
             self::terminateProcess($process);
-            $exitCode = proc_close($process);
         }
+        $exitCode = proc_close($process);
 
         // all done
         return $exitCode;
@@ -270,8 +268,9 @@ class PopenProcessRunner implements ProcessRunner
      *         the pipes that are connected to the process
      * @param  array $timeout
      *         the timeout to use whilst draining the pipes
-     * @return string
-     *         the combined output from stdout and stderr
+     * @return array
+     *         [0] - the combined output from stdout and stderr
+     *         [1] - TRUE if the command timed out, false otherwise
      */
     private static function drainPipes(&$pipes, $timeout)
     {
@@ -282,15 +281,36 @@ class PopenProcessRunner implements ProcessRunner
         $startTime = $endTime = microtime(true);
 
         // grab whatever output we can
-        while (self::checkPipesAreOpen($pipes) && ($endTime - $startTime <= $timeout[0])) {
+        while (self::checkPipesAreOpen($pipes) && !self::hasTimedout($startTime, $endTime, $timeout[0])) {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
             $output .= self::getOutputFromPipe($pipes[1]);
             $output .= self::getOutputFromPipe($pipes[2]);
             $endTime = microtime(true);
         }
 
+        // did we timeout?
+        $timedOut =self::hasTimedout($startTime, $endTime, $timeout[0]);
+
         // all done
-        return $output;
+        return [ $output , $timedOut ];
+    }
+
+    /**
+     * has a timeout occurred?
+     *
+     * @param  float  $startTime
+     *         when did the process start?
+     * @param  float  $endTime
+     *         when did the process end?
+     * @param  float  $timeout
+     *         how long is the process allowed to run for?
+     * @return boolean
+     *         TRUE if a timeout occurred
+     *         FALSE otherwise
+     */
+    private static function hasTimedOut($startTime, $endTime, $timeout)
+    {
+        return ($endTime - $startTime > $timeout);
     }
 
     /**
