@@ -59,7 +59,7 @@ use GanbaroDigital\Reflection\Requirements\RequireTraversable;
 use GanbaroDigital\EventStream\Streams\DispatchEvent;
 use GanbaroDigital\EventStream\Streams\EventStream;
 use GanbaroDigital\EventStream\ValueBuilders\GuaranteeEventStream;
-use Traverseable;
+use Traversable;
 
 /**
  * based on the ProcessRunner code from Storyplayer

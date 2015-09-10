@@ -52,7 +52,7 @@ class ProcessStarted implements Event
 {
 	/**
 	 * the command that has been executed
-	 * @var array|Traverseable
+	 * @var array|Traversable
 	 */
 	public $command;
 
