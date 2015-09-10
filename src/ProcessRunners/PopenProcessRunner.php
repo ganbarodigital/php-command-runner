@@ -47,6 +47,7 @@ namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
 use GanbaroDigital\Filesystem\Requirements\RequireAbsoluteFolderOrNull;
 use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessPartialOutput;
 use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
 use GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart;
@@ -304,13 +305,13 @@ class PopenProcessRunner implements ProcessRunner
         // grab whatever output we can
         while (self::checkPipesAreOpen($pipes) && !self::hasTimedout($startTime, $endTime, $timeout[0])) {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
-            $output .= self::getOutputFromPipe($pipes[1]);
-            $output .= self::getOutputFromPipe($pipes[2]);
+            $output .= self::getOutputFromPipe($pipes[1], $eventStream);
+            $output .= self::getOutputFromPipe($pipes[2], $eventStream);
             $endTime = microtime(true);
         }
 
         // did we timeout?
-        $timedOut =self::hasTimedout($startTime, $endTime, $timeout[0]);
+        $timedOut = self::hasTimedout($startTime, $endTime, $timeout[0]);
 
         // all done
         return [ $output , $timedOut ];
@@ -351,7 +352,10 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function checkPipesAreOpen($pipes)
     {
-        return !(feof($pipes[1]) && feof($pipes[2]));
+        if (!feof($pipes[1]) || !feof($pipes[2])) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -380,12 +384,15 @@ class PopenProcessRunner implements ProcessRunner
      *
      * @param  resource $pipe
      *         the pipe to check and read from
+     * @param  EventStream $eventStream
+     *         helper to send events to
      * @return string
      *         the returned output, or an empty string otherwise
      */
-    private static function getOutputFromPipe($pipe)
+    private static function getOutputFromPipe($pipe, EventStream $eventStream)
     {
         if ($line = fgets($pipe)) {
+            DispatchEvent::to($eventStream, new ProcessPartialOutput($line));
             return $line;
         }
 

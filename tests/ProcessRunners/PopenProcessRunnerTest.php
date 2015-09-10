@@ -48,6 +48,7 @@ namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 use GanbaroDigital\EventStream\Streams\EventStream;
 use GanbaroDigital\EventStream\Streams\RegisterEventHandler;
 use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessPartialOutput;
 use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
@@ -254,6 +255,36 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotNull($actualResultFromHandler);
         $this->assertSame($actualResult, $actualResultFromHandler);
+    }
+
+    /**
+     * @covers ::run
+     * @covers ::runCommand
+     */
+    public function testSendsEventDuringOutput()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $obj = new PopenProcessRunner();
+        $stream = new EventStream;
+
+        $handlerData = [];
+        $handler = function(ProcessPartialOutput $event) use (&$handlerData) {
+            $handlerData[] = [ time(), $event->output ];
+        };
+        RegisterEventHandler::on($stream, ProcessPartialOutput::class, $handler);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj(['php', __DIR__ . '/PartialOutputHelper.php' ], null, null, $stream);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertEquals(2, count($handlerData));
+        $this->assertTrue($handlerData[0][0] < $handlerData[1][0]);
     }
 
 }
