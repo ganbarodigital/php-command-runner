@@ -2,7 +2,12 @@
 
 ## develop branch
 
-## New
+Nothing yet.
+
+## 0.3.0 - Thu 10 Sep 2015
+
+### New
+
 * PopenProcessRunner - now emits events
   * ProcessStarted
   * ProcessPartialLine
