@@ -120,14 +120,11 @@ class PopenProcessRunner implements ProcessRunner
         DispatchEvent::to($eventStream, new ProcessStarted($command, $timeout, $cwd));
 
         // drain the pipes
-        try {
-            list($output, $timedOut) = self::drainPipes($pipes, $timeoutToUse, $eventStream);
-        }
-        finally {
-            // at this point, our pipes have been closed
-            // we can assume that the child process has finished
-            $retval = self::stopProcess($process, $pipes, $timedOut);
-        }
+        list($output, $timedOut) = self::drainPipes($pipes, $timeoutToUse, $eventStream);
+
+        // at this point, our pipes have been closed
+        // we can assume that the child process has finished
+        $retval = self::stopProcess($process, $pipes, $timedOut);
 
         // all done
         $retval = new ProcessResult($command, $retval, $output);
