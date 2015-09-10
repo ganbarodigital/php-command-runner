@@ -4,6 +4,15 @@
 
 Nothing yet.
 
+## 0.3.0 - Thu 10 Sep 2015
+
+### New
+
+* PopenProcessRunner - now emits events
+  * ProcessStarted
+  * ProcessPartialLine
+  * ProcessEnded
+
 ## 0.2.2 - Fri 4 Sep 2015
 
 ### Fixes
