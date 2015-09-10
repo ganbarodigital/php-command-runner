@@ -126,7 +126,7 @@ class PopenProcessRunner implements ProcessRunner
         finally {
             // at this point, our pipes have been closed
             // we can assume that the child process has finished
-            $retval = self::stopProcess($process, $pipes, $timedOut, $eventStream);
+            $retval = self::stopProcess($process, $pipes, $timedOut);
         }
 
         // all done
