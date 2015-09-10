@@ -47,6 +47,7 @@ namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
 use GanbaroDigital\Filesystem\Requirements\RequireAbsoluteFolderOrNull;
 use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
 use GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
@@ -114,7 +115,8 @@ class PopenProcessRunner implements ProcessRunner
         $timedOut = true;
 
         // start the process
-        list($process, $pipes) = self::startProcess($command, $cwd, $eventStream);
+        list($process, $pipes) = self::startProcess($command, $cwd);
+        DispatchEvent::to($eventStream, new ProcessStarted($command, $timeout, $cwd));
 
         // drain the pipes
         try {

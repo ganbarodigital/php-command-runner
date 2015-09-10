@@ -48,6 +48,7 @@ namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 use GanbaroDigital\EventStream\Streams\EventStream;
 use GanbaroDigital\EventStream\Streams\RegisterEventHandler;
 use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
 
@@ -188,6 +189,41 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
 
         $actualResult = getcwd();
         $this->assertEquals($expectedResult, $actualResult);
+    }
+
+    /**
+     * @covers ::run
+     * @covers ::runCommand
+     */
+    public function testSendsEventWhenProcessStarts()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $obj = new PopenProcessRunner();
+        $stream = new EventStream;
+
+        $handlerData = null;
+        $startHandler = function(ProcessStarted $event) use (&$handlerData) {
+            $handlerData = [ $event ];
+        };
+        RegisterEventHandler::on($stream, ProcessStarted::class, $startHandler);
+        $endHandler = function(ProcessEnded $event) use (&$handlerData) {
+            $handlerData[] = $event;
+        };
+        RegisterEventHandler::on($stream, ProcessEnded::class, $endHandler);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $obj(['/bin/ls', '-l', __FILE__], null, null, $stream);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertTrue(is_array($handlerData));
+        $this->assertTrue($handlerData[0] instanceof ProcessStarted);
+        $this->assertTrue($handlerData[1] instanceof ProcessEnded);
     }
 
     /**
