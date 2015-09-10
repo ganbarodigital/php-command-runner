@@ -49,6 +49,16 @@ use GanbaroDigital\EventStream\Events\Event;
 
 class ProcessPartialOutput implements Event
 {
+	/**
+	 * the latest output from the process
+	 * @var string
+	 */
+	public $output;
+
+	/**
+	 * @param string $output
+	 *        the latest output from the process
+	 */
     public function __construct($output)
     {
     	$this->output = $output;

@@ -46,6 +46,7 @@
 namespace GanbaroDigital\ProcessRunner\Events;
 
 use GanbaroDigital\EventStream\Events\Event;
+use Traversable;
 
 class ProcessStarted implements Event
 {
