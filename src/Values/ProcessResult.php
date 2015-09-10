@@ -51,6 +51,7 @@ use GanbaroDigital\DataContainers\Containers\LazyValueObject;
 use GanbaroDigital\Reflection\Requirements\RequireNumeric;
 use GanbaroDigital\Reflection\Requirements\RequireStringy;
 use GanbaroDigital\Reflection\Requirements\RequireTraversable;
+use Traversable;
 
 /**
  * @method int getReturnCode()
@@ -62,7 +63,7 @@ use GanbaroDigital\Reflection\Requirements\RequireTraversable;
  */
 class ProcessResult extends LazyValueObject
 {
-    public function __construct(array $command, $returnCode, $output)
+    public function __construct($command, $returnCode, $output)
     {
         // robustness!
         RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
