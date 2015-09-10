@@ -146,6 +146,12 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function getTimeoutToUse($timeout = null)
     {
+        // special case
+        if ($timeout === null) {
+            return [ 0, 1, 0 ];
+        }
+
+        // general case
         $tAsF = BuildTimeoutAsFloat::from($timeout);
         if ($tAsF >= 1.0) {
             return [ $tAsF, 1, 0 ];
@@ -325,6 +331,12 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function hasTimedOut($startTime, $endTime, $timeout)
     {
+        // special case
+        if ($timeout === 0) {
+            return false;
+        }
+
+        // general case
         return ($endTime - $startTime > $timeout);
     }
 
