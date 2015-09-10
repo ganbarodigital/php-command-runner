@@ -44,13 +44,14 @@
 namespace GanbaroDigital\ProcessRunner\Exceptions;
 
 use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
+use Traversable;
 
 class E5xx_ProcessFailedToStart extends E5xx_ProcessRunnerException
 {
     /**
      * exception thrown when we have failed to start a command
      *
-     * @param array $command
+     * @param array|Traversable $command
      *        the command that failed to start
      */
     public function __construct($command)

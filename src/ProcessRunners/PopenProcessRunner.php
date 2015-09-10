@@ -46,6 +46,9 @@
 namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
 use GanbaroDigital\Filesystem\Requirements\RequireAbsoluteFolderOrNull;
+use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessPartialOutput;
+use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
 use GanbaroDigital\ProcessRunner\Exceptions\E5xx_ProcessFailedToStart;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
@@ -53,6 +56,10 @@ use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
 use GanbaroDigital\DateTime\Requirements\RequireTimeoutOrNull;
 use GanbaroDigital\DateTime\ValueBuilders\BuildTimeoutAsFloat;
 use GanbaroDigital\Reflection\Requirements\RequireTraversable;
+use GanbaroDigital\EventStream\Streams\DispatchEvent;
+use GanbaroDigital\EventStream\Streams\EventStream;
+use GanbaroDigital\EventStream\ValueBuilders\GuaranteeEventStream;
+use Traversable;
 
 /**
  * based on the ProcessRunner code from Storyplayer
@@ -73,17 +80,20 @@ class PopenProcessRunner implements ProcessRunner
      *         how long before we force the command to close?
      * @param  string|null $cwd
      *         the folder to run the command inside
+     * @param  EventStream $eventStream
+     *         helper to send events to
      * @return ProcessResult
      *         the result of executing the command
      */
-    public static function run($command, $timeout = null, $cwd = null)
+    public static function run($command, $timeout = null, $cwd = null, EventStream $eventStream = null)
     {
         // robustness
         RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
         RequireTimeoutOrNull::check($timeout);
         RequireAbsoluteFolderOrNull::check($cwd);
+        $eventStream = GuaranteeEventStream::from($eventStream);
 
-        return self::runCommand($command, $timeout, $cwd);
+        return self::runCommand($command, $timeout, $cwd, $eventStream);
     }
 
     /**
@@ -95,30 +105,31 @@ class PopenProcessRunner implements ProcessRunner
      *         how long before we force the command to close?
      * @param  string|null $cwd
      *         the folder to run the command inside
+     * @param  EventStream $eventStream
+     *         helper to send events to
      * @return ProcessResult
      *         the result of executing the command
      */
-    private static function runCommand($command, $timeout, $cwd)
+    private static function runCommand($command, $timeout, $cwd, EventStream $eventStream)
     {
         // when the command needs to stop
         $timeoutToUse = self::getTimeoutToUse($timeout);
-        $timedOut = true;
 
         // start the process
         list($process, $pipes) = self::startProcess($command, $cwd);
+        DispatchEvent::to($eventStream, new ProcessStarted($command, $timeout, $cwd));
 
         // drain the pipes
-        try {
-            list($output, $timedOut) = self::drainPipes($pipes, $timeoutToUse);
-        }
-        finally {
-            // at this point, our pipes have been closed
-            // we can assume that the child process has finished
-            $retval = self::stopProcess($process, $pipes, $timedOut);
-        }
+        list($output, $timedOut) = self::drainPipes($pipes, $timeoutToUse, $eventStream);
+
+        // at this point, our pipes have been closed
+        // we can assume that the child process has finished
+        $retval = self::stopProcess($process, $pipes, $timedOut);
 
         // all done
-        return new ProcessResult($command, $retval, $output);
+        $retval = new ProcessResult($command, $retval, $output);
+        DispatchEvent::to($eventStream, new ProcessEnded($retval));
+        return $retval;
     }
 
     /**
@@ -133,6 +144,12 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function getTimeoutToUse($timeout = null)
     {
+        // special case
+        if ($timeout === null) {
+            return [ 0, 1, 0 ];
+        }
+
+        // general case
         $tAsF = BuildTimeoutAsFloat::from($timeout);
         if ($tAsF >= 1.0) {
             return [ $tAsF, 1, 0 ];
@@ -268,11 +285,13 @@ class PopenProcessRunner implements ProcessRunner
      *         the pipes that are connected to the process
      * @param  array $timeout
      *         the timeout to use whilst draining the pipes
+     * @param  EventStream $eventStream
+     *         helper to send events to
      * @return array
      *         [0] - the combined output from stdout and stderr
      *         [1] - TRUE if the command timed out, false otherwise
      */
-    private static function drainPipes(&$pipes, $timeout)
+    private static function drainPipes(&$pipes, $timeout, EventStream $eventStream)
     {
         // the output from the command will be captured here
         $output = '';
@@ -283,13 +302,13 @@ class PopenProcessRunner implements ProcessRunner
         // grab whatever output we can
         while (self::checkPipesAreOpen($pipes) && !self::hasTimedout($startTime, $endTime, $timeout[0])) {
             self::waitForTimeout($pipes, $timeout[1], $timeout[2]);
-            $output .= self::getOutputFromPipe($pipes[1]);
-            $output .= self::getOutputFromPipe($pipes[2]);
+            $output .= self::getOutputFromPipe($pipes[1], $eventStream);
+            $output .= self::getOutputFromPipe($pipes[2], $eventStream);
             $endTime = microtime(true);
         }
 
         // did we timeout?
-        $timedOut =self::hasTimedout($startTime, $endTime, $timeout[0]);
+        $timedOut = self::hasTimedout($startTime, $endTime, $timeout[0]);
 
         // all done
         return [ $output , $timedOut ];
@@ -310,6 +329,12 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function hasTimedOut($startTime, $endTime, $timeout)
     {
+        // special case
+        if ($timeout === 0) {
+            return false;
+        }
+
+        // general case
         return ($endTime - $startTime > $timeout);
     }
 
@@ -324,7 +349,10 @@ class PopenProcessRunner implements ProcessRunner
      */
     private static function checkPipesAreOpen($pipes)
     {
-        return !(feof($pipes[1]) && feof($pipes[2]));
+        if (!feof($pipes[1]) || !feof($pipes[2])) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -353,12 +381,15 @@ class PopenProcessRunner implements ProcessRunner
      *
      * @param  resource $pipe
      *         the pipe to check and read from
+     * @param  EventStream $eventStream
+     *         helper to send events to
      * @return string
      *         the returned output, or an empty string otherwise
      */
-    private static function getOutputFromPipe($pipe)
+    private static function getOutputFromPipe($pipe, EventStream $eventStream)
     {
         if ($line = fgets($pipe)) {
+            DispatchEvent::to($eventStream, new ProcessPartialOutput($line));
             return $line;
         }
 
@@ -377,8 +408,8 @@ class PopenProcessRunner implements ProcessRunner
      * @return ProcessResult
      *         the result of executing the command
      */
-    public function __invoke($command, $timeout = null, $cwd = null)
+    public function __invoke($command, $timeout = null, $cwd = null, EventStream $eventStream = null)
     {
-        return self::runCommand($command, $timeout, $cwd);
+        return self::run($command, $timeout, $cwd, $eventStream);
     }
 }

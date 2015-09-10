@@ -45,6 +45,11 @@
 
 namespace GanbaroDigital\ProcessRunner\ProcessRunners;
 
+use GanbaroDigital\EventStream\Streams\EventStream;
+use GanbaroDigital\EventStream\Streams\RegisterEventHandler;
+use GanbaroDigital\ProcessRunner\Events\ProcessEnded;
+use GanbaroDigital\ProcessRunner\Events\ProcessPartialOutput;
+use GanbaroDigital\ProcessRunner\Events\ProcessStarted;
 use GanbaroDigital\ProcessRunner\Values\ProcessResult;
 use PHPUnit_Framework_TestCase;
 
@@ -186,4 +191,100 @@ class PopenProcessRunnerTest extends PHPUnit_Framework_TestCase
         $actualResult = getcwd();
         $this->assertEquals($expectedResult, $actualResult);
     }
+
+    /**
+     * @covers ::run
+     * @covers ::runCommand
+     */
+    public function testSendsEventWhenProcessStarts()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $obj = new PopenProcessRunner();
+        $stream = new EventStream;
+
+        $handlerData = null;
+        $startHandler = function(ProcessStarted $event) use (&$handlerData) {
+            $handlerData = [ $event ];
+        };
+        RegisterEventHandler::on($stream, ProcessStarted::class, $startHandler);
+        $endHandler = function(ProcessEnded $event) use (&$handlerData) {
+            $handlerData[] = $event;
+        };
+        RegisterEventHandler::on($stream, ProcessEnded::class, $endHandler);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $obj(['/bin/ls', '-l', __FILE__], null, null, $stream);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertTrue(is_array($handlerData));
+        $this->assertTrue($handlerData[0] instanceof ProcessStarted);
+        $this->assertTrue($handlerData[1] instanceof ProcessEnded);
+    }
+
+    /**
+     * @covers ::run
+     * @covers ::runCommand
+     */
+    public function testSendsEventWhenProcessFinishes()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $obj = new PopenProcessRunner();
+        $stream = new EventStream;
+
+        $actualResultFromHandler = null;
+        $handler = function(ProcessEnded $event) use (&$actualResultFromHandler) {
+            $actualResultFromHandler = $event->result;
+        };
+        RegisterEventHandler::on($stream, ProcessEnded::class, $handler);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj(['/bin/ls', '-l', __FILE__], null, null, $stream);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertNotNull($actualResultFromHandler);
+        $this->assertSame($actualResult, $actualResultFromHandler);
+    }
+
+    /**
+     * @covers ::run
+     * @covers ::runCommand
+     */
+    public function testSendsEventDuringOutput()
+    {
+        // ----------------------------------------------------------------
+        // setup your test
+
+        $obj = new PopenProcessRunner();
+        $stream = new EventStream;
+
+        $handlerData = [];
+        $handler = function(ProcessPartialOutput $event) use (&$handlerData) {
+            $handlerData[] = [ time(), $event->output ];
+        };
+        RegisterEventHandler::on($stream, ProcessPartialOutput::class, $handler);
+
+        // ----------------------------------------------------------------
+        // perform the change
+
+        $actualResult = $obj(['php', __DIR__ . '/PartialOutputHelper.php' ], null, null, $stream);
+
+        // ----------------------------------------------------------------
+        // test the results
+
+        $this->assertEquals(2, count($handlerData));
+        $this->assertTrue($handlerData[0][0] < $handlerData[1][0]);
+    }
+
 }

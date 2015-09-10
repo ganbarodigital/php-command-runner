@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @category  Libraries
- * @package   ProcessRunner/Values
+ * @package   ProcessRunner/Events
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2011-present MediaSift Ltd www.datasift.com
  * @copyright 2015-present Ganbaro Digital Ltd www.ganbarodigital.com
@@ -43,43 +43,43 @@
  * @link      http://code.ganbarodigital.com/php-process-runner
  */
 
-namespace GanbaroDigital\ProcessRunner\Values;
+namespace GanbaroDigital\ProcessRunner\Events;
 
-use GanbaroDigital\ProcessRunner\Exceptions\E4xx_UnsupportedType;
-use GanbaroDigital\ProcessRunner\ValueBuilders\BuildEscapedCommandLine;
-use GanbaroDigital\DataContainers\Containers\LazyValueObject;
-use GanbaroDigital\Reflection\Requirements\RequireNumeric;
-use GanbaroDigital\Reflection\Requirements\RequireStringy;
-use GanbaroDigital\Reflection\Requirements\RequireTraversable;
+use GanbaroDigital\EventStream\Events\Event;
 use Traversable;
 
-/**
- * @method int getReturnCode()
- * @method void setReturnCode(int)
- * @method string getOutput()
- * @method void   setOutput(string)
- * @method array getCommand()
- * @method void  setCommand(array)
- */
-class ProcessResult extends LazyValueObject
+class ProcessStarted implements Event
 {
-    public function __construct($command, $returnCode, $output)
+	/**
+	 * the command that has been executed
+	 * @var array|Traversable
+	 */
+	public $command;
+
+	/**
+	 * how long is the command allowed to run, in seconds?
+	 * @var int|null
+	 */
+	public $timeout;
+
+	/**
+	 * which folder do we run the command in?
+	 * @var string|null
+	 */
+	public $cwd;
+
+	/**
+     * @param  array|Traversable $command
+     *         the command to execute
+     * @param  int|null $timeout
+     *         how long before we force the command to close?
+     * @param  string|null $cwd
+     *         the folder to run the command inside
+	 */
+    public function __construct($command, $timeout, $cwd)
     {
-        // robustness!
-        RequireTraversable::checkMixed($command, E4xx_UnsupportedType::class);
-        RequireNumeric::check($returnCode, E4xx_UnsupportedType::class);
-        RequireStringy::checkMixed($output, E4xx_UnsupportedType::class);
-
-        $this->setCommand($command);
-        $this->setReturnCode($returnCode);
-        $this->setOutput($output);
-
-        // all done
-        $this->makeReadOnly();
-    }
-
-    public function getCommandAsString()
-    {
-        return BuildEscapedCommandLine::fromArray($this->getCommand());
+    	$this->command = $command;
+    	$this->timeout = $timeout;
+    	$this->cwd = $cwd;
     }
 }
