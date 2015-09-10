@@ -114,7 +114,6 @@ class PopenProcessRunner implements ProcessRunner
     {
         // when the command needs to stop
         $timeoutToUse = self::getTimeoutToUse($timeout);
-        $timedOut = true;
 
         // start the process
         list($process, $pipes) = self::startProcess($command, $cwd);
