@@ -2,6 +2,10 @@
 
 ## develop branch
 
+Nothing yet.
+
+## 0.3.2 - Tue 22 Sep 2015
+
 ### Test Fixes
 
 * E4xx_UnsupportedType - updated to work with latest Exception
