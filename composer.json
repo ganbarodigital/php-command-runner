@@ -11,7 +11,7 @@
         "ganbarodigital/php-data-containers": "^2.1",
         "ganbarodigital/php-datetime": "^1.0",
         "ganbarodigital/php-exceptions": "^1.1",
-        "ganbarodigital/php-file-system": "^0.1",
+        "ganbarodigital/php-file-system": ">=0.2, <2.0.0",
         "ganbarodigital/php-event-stream": "^1.0"
     },
     "require-dev": {
