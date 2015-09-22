@@ -2,6 +2,10 @@
 
 ## develop branch
 
+Nothing yet.
+
+## 0.3.1 - Tue 22 Sep 2015
+
 ### Fixes
 
 * composer.json - now depends on all pre-releases of Filesystem
